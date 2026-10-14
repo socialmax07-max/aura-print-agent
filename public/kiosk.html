@@ -462,4 +462,30 @@
   <!-- Main Kiosk Modular Application Coordinator -->
   <script type="module" src="./kiosk/kiosk-app.js"></script>
 </body>
-</html>
+</html><script>
+(function() {
+  function fixKioskHeader() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shopCode = urlParams.get('shop') || localStorage.getItem('last_shop') || 'shop1';
+    
+    // Header me loading text ko dukan ke naam aur code se replace karna
+    document.querySelectorAll('*').forEach(el => {
+      if (el.innerText && el.innerText.includes("It's loading")) {
+        el.innerText = "Sabir Xerox Center";
+        el.style.fontWeight = "700";
+        el.style.color = "#0f172a";
+      }
+      if (el.innerText && el.innerText.includes("Shop Code: ---")) {
+        el.innerHTML = `<span style="color:#10b981;">●</span> Shop Code: <b>${shopCode}</b>`;
+      }
+    });
+
+    localStorage.setItem('last_shop', shopCode);
+  }
+
+  window.addEventListener('load', fixKioskHeader);
+  document.addEventListener('DOMContentLoaded', fixKioskHeader);
+  setTimeout(fixKioskHeader, 200);
+  setTimeout(fixKioskHeader, 1000);
+})();
+</script>
