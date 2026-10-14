@@ -1,223 +1,83 @@
-/* ==============================================================================
-   AURA PRINT PRO — SUPER ADMIN COCKPIT STYLESHEET
-   Owner: Sabir Ansari
-   Interface: Super Admin Platform Cockpit (Multi-Tenant Management)
-   ============================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* ------------------------------------------------------------------------------
-   1. BASE LAYOUT & NAVIGATION HEADER
-   ------------------------------------------------------------------------------ */
-.admin-body {
-  background-color: #f8fafc;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-style: normal !important;
+}
+
+body {
+  background-color: #0b0f19;
+  color: #f1f5f9;
+  padding: 16px;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  color: var(--text-main);
 }
 
-.admin-container {
-  width: 100%;
-  max-width: 1520px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+/* Header & Titles */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  color: #ffffff;
 }
 
-.admin-header {
-  background: #ffffff;
-  border-bottom: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* Metrics Section as Modern Grid Cards */
+body > div:has(h1), main {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.header-layout {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+/* Grid Layout for Metrics */
+.metrics-grid, 
+div:has(> p:contains("Active Shops")), 
+div:has(> div:contains("Active Shops")) {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  gap: 14px !important;
+  margin: 20px 0 !important;
 }
 
-.admin-brand {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
+/* Card Styling */
+div[class*="metric"], div[class*="stat"], 
+div:has(> strong:contains("Active Shops")) {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  border-radius: 14px !important;
+  padding: 16px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
 }
 
-.admin-logo {
-  height: 40px;
-  width: auto;
+/* Buttons Styling */
+button, .btn {
+  font-family: inherit !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  padding: 10px 18px !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
 }
 
-.admin-meta {
-  display: flex;
-  flex-direction: column;
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
 }
 
-.admin-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* Directory & Inputs */
+input, select {
+  font-family: inherit !important;
+  background: #111827 !important;
+  border: 1px solid #374151 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+  outline: none !important;
 }
 
-.admin-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.2;
-}
-
-.admin-author-tag {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.15rem;
-}
-
-.admin-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-/* ------------------------------------------------------------------------------
-   2. PLATFORM AGGREGATE KPI METRICS
-   ------------------------------------------------------------------------------ */
-.admin-main {
-  flex: 1;
-  padding-top: 1.75rem;
-  padding-bottom: 3rem;
-}
-
-.admin-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.75rem;
-}
-
-/* ------------------------------------------------------------------------------
-   3. TENANT DIRECTORY & DIRECTORY CONTROLS
-   ------------------------------------------------------------------------------ */
-.admin-directory-card {
-  margin-bottom: 0;
-}
-
-.directory-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.directory-actions .search-box {
-  min-width: 280px;
-}
-
-.admin-table th {
-  white-space: nowrap;
-}
-
-.admin-table td {
-  font-size: 0.8125rem;
-  vertical-align: middle;
-}
-
-.tenant-identity-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.tenant-city-badge {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-}
-
-.agent-live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  display: inline-block;
-  margin-right: 0.35rem;
-}
-
-.agent-online {
-  background-color: var(--success-solid);
-  box-shadow: 0 0 0 2px var(--success-border);
-}
-
-.agent-offline {
-  background-color: var(--text-muted);
-}
-
-/* ------------------------------------------------------------------------------
-   4. MODAL DIALOG SIZES & FORM LAYOUTS
-   ------------------------------------------------------------------------------ */
-.modal-sm {
-  max-width: 420px;
-}
-
-.modal-md {
-  max-width: 620px;
-}
-
-.form-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-@media (min-width: 580px) {
-  .form-grid-2 {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.agent-token-inline {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.35rem;
-}
-
-.agent-token-inline input {
-  background-color: var(--surface-subtle);
-  border-color: var(--border-medium);
-}
-
-/* ------------------------------------------------------------------------------
-   5. RESPONSIVE BREAKPOINTS
-   ------------------------------------------------------------------------------ */
-@media (max-width: 768px) {
-  .header-layout {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .admin-header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .directory-actions {
-    width: 100%;
-    margin-top: 0.75rem;
-  }
-
-  .directory-actions .search-box {
-    width: 100%;
-  }
-
-  .admin-table th:nth-child(5),
-  .admin-table td:nth-child(5),
-  .admin-table th:nth-child(6),
-  .admin-table td:nth-child(6) {
-    display: none;
-  }
+input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
 }
