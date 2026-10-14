@@ -12,7 +12,7 @@
 
 [build.environment]
   # Pin modern LTS Node environment for serverless functions execution
-  NODE_VERSION = "20.x"
+  NODE_VERSION = "20"
 
 [functions]
   # Use esbuild for fast, deterministic serverless bundling
