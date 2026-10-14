@@ -1,404 +1,137 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>Aura Print Pro — Customer Kiosk</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, Roboto, sans-serif; }
-    body { background: #f8fafc; color: #0f172a; padding: 14px; min-height: 100vh; }
-    .kiosk-container { max-width: 500px; margin: 0 auto; }
-    
-    /* Header */
-    .header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 14px 16px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-logo { background: #2563eb; color: #fff; font-weight: 800; font-size: 0.9rem; padding: 6px 10px; border-radius: 6px; }
-    .shop-meta h2 { font-size: 1rem; font-weight: 700; color: #0f172a; }
-    .shop-meta p { font-size: 0.75rem; color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-    .dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; }
-
-    /* Stepper */
-    .stepper { display: flex; justify-content: space-between; position: relative; margin-bottom: 20px; }
-    .step-item { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 600; color: #94a3b8; }
-    .step-item.active { color: #2563eb; }
-    .step-num { width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-weight: 700; }
-    .step-item.active .step-num { background: #2563eb; color: #ffffff; }
-
-    /* Card Panels */
-    .panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .panel-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
-    .panel-sub { font-size: 0.85rem; color: #64748b; margin-bottom: 18px; }
-
-    /* Upload Box */
-    .dropzone { border: 2px dashed #3b82f6; background: #eff6ff; border-radius: 14px; padding: 36px 16px; text-align: center; cursor: pointer; transition: 0.2s; }
-    .dropzone:active { transform: scale(0.98); background: #dbeafe; }
-    .upload-icon { font-size: 2.5rem; margin-bottom: 10px; }
-    .upload-title { font-size: 1.05rem; font-weight: 700; color: #1e3a8a; margin-bottom: 4px; }
-    .upload-hint { font-size: 0.8rem; color: #64748b; }
-    .file-badges { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
-    .file-badge { background: #ffffff; border: 1px solid #cbd5e1; font-size: 0.7rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; color: #475569; }
-
-    /* File Preview Selected */
-    .file-card { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; }
-    .file-info { overflow: hidden; }
-    .file-info strong { display: block; font-size: 0.9rem; color: #0f172a; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 250px; }
-    .file-info span { font-size: 0.75rem; color: #64748b; }
-
-    /* Form Fields */
-    .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .option-btn { border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px; text-align: center; background: #fff; cursor: pointer; }
-    .option-btn.selected { border-color: #2563eb; background: #eff6ff; }
-    .option-btn strong { display: block; font-size: 0.95rem; color: #0f172a; }
-    .option-btn span { font-size: 0.8rem; color: #2563eb; font-weight: 600; }
-
-    .counter-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 14px; border-radius: 10px; margin-bottom: 14px; }
-    .counter-ctrl { display: flex; align-items: center; gap: 12px; }
-    .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #cbd5e1; background: #fff; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-    /* Summary & Price */
-    .price-box { background: #0f172a; color: #fff; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }
-    .price-label { font-size: 0.85rem; color: #94a3b8; }
-    .price-val { font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
-
-    /* Action Buttons */
-    .btn-primary { width: 100%; padding: 14px; background: #2563eb; color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 14px; }
-    .btn-secondary { width: 100%; padding: 12px; background: transparent; color: #64748b; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
-
-    /* Success Screen */
-    .success-box { text-align: center; padding: 20px 0; }
-    .success-badge { width: 64px; height: 64px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 16px; }
-    .token-box { background: #eff6ff; border: 1px dashed #2563eb; padding: 16px; border-radius: 12px; margin: 18px 0; }
-    .token-num { font-size: 2rem; font-weight: 800; color: #1e3a8a; letter-spacing: 2px; }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aura Print Pro — Kiosk</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f1f5f9;color:#0f172a;padding:16px;min-height:100vh}
+.card{background:#fff;border-radius:16px;padding:20px;max-width:440px;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.06);border:1px solid #e2e8f0}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.badge{background:#2563eb;color:#fff;font-weight:800;font-size:0.8rem;padding:4px 8px;border-radius:6px}
+.shop-title{font-size:1.1rem;font-weight:700}
+.shop-sub{font-size:0.75rem;color:#10b981;font-weight:600}
+.dropzone{position:relative;border:2px dashed #3b82f6;background:#eff6ff;border-radius:14px;padding:36px 16px;text-align:center;overflow:hidden}
+.dropzone input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10}
+.icon{font-size:2.8rem;margin-bottom:8px}
+.btn{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:1rem;cursor:pointer;margin-top:14px}
+.btn-sec{background:transparent;color:#64748b;border:none;padding:10px;font-weight:600;cursor:pointer;width:100%}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.opt{border:2px solid #e2e8f0;padding:12px;border-radius:10px;text-align:center;cursor:pointer;background:#fff}
+.opt.active{border-color:#2563eb;background:#eff6ff}
+.row{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:10px 14px;border-radius:8px;margin-bottom:10px;border:1px solid #e2e8f0}
+.ctrl button{width:32px;height:32px;border-radius:50%;border:1px solid #cbd5e1;background:#fff;font-size:1.1rem;font-weight:700;cursor:pointer}
+.price-tag{background:#0f172a;color:#38bdf8;padding:14px;border-radius:10px;font-size:1.4rem;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.token{font-size:2.2rem;font-weight:800;color:#1e3a8a;letter-spacing:2px;margin:14px 0;background:#eff6ff;padding:14px;border-radius:12px;border:2px dashed #2563eb;text-align:center}
+</style>
 </head>
 <body>
-  <div class="kiosk-container">
-    
-    <!-- Header -->
-    <header class="header">
-      <div class="brand">
-        <div class="brand-logo">AURA</div>
-        <div class="shop-meta">
-          <h2 id="kiosk-shop-name">Sabir Xerox Center</h2>
-          <p><span class="dot"></span> Shop Code: <b id="kiosk-shop-code">shop1</b></p>
-        </div>
-      </div>
-      <a href="/index.html" style="text-decoration:none;font-size:0.8rem;color:#64748b;padding:6px 10px;background:#f1f5f9;border-radius:6px;">बदलें / Home</a>
-    </header>
-
-    <!-- Stepper Navigation -->
-    <div class="stepper">
-      <div class="step-item active" id="step-nav-1">
-        <div class="step-num">1</div>
-        दस्तावेज़ (Upload)
-      </div>
-      <div class="step-item" id="step-nav-2">
-        <div class="step-num">2</div>
-        सेटिंग्स (Settings)
-      </div>
-      <div class="step-item" id="step-nav-3">
-        <div class="step-num">3</div>
-        प्रिंट (Print)
-      </div>
+<div class="card">
+  <div class="header">
+    <div>
+      <div class="shop-title" id="shopName">Sabir Xerox Center</div>
+      <div class="shop-sub">● Shop Code: <b id="shopCode">shop1</b></div>
     </div>
-
-    <!-- Hidden native file input -->
-    <input type="file" id="real-file-input" accept=".pdf,image/png,image/jpeg,image/jpg" style="display:none;">
-
-    <!-- STEP 1: Upload Document -->
-    <section class="panel" id="panel-step-1">
-      <h3 class="panel-title">चरण 1: दस्तावेज़ चुनें</h3>
-      <p class="panel-sub">प्रिंट करने के लिए PDF फ़ाइल या फ़ोटो सेलेक्ट करें।</p>
-
-      <div class="dropzone" id="btn-trigger-upload">
-        <div class="upload-icon">📁</div>
-        <div class="upload-title">फ़ाइल चुनने के लिए यहाँ टैप करें</div>
-        <div class="upload-hint">या फ़ाइल को यहाँ ड्रैग करें</div>
-        <div class="file-badges">
-          <span class="file-badge">PDF</span>
-          <span class="file-badge">JPG / JPEG</span>
-          <span class="file-badge">PNG</span>
-          <span class="file-badge">MAX 100 MB</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- STEP 2: Configure Print -->
-    <section class="panel" id="panel-step-2" style="display:none;">
-      <h3 class="panel-title">चरण 2: प्रिंट सेटिंग्स</h3>
-      <p class="panel-sub">प्रिंट का प्रकार और कॉपियों की संख्या चुनें।</p>
-
-      <div class="file-card">
-        <div class="file-info">
-          <strong id="disp-file-name">document.pdf</strong>
-          <span id="disp-file-size">1.2 MB</span>
-        </div>
-        <button id="btn-change-file" style="background:#fee2e2;color:#ef4444;border:none;padding:6px 10px;border-radius:6px;font-weight:700;cursor:pointer;">हटाएं</button>
-      </div>
-
-      <label style="font-size:0.85rem;font-weight:700;display:block;margin-bottom:8px;">कलर या ब्लैक & व्हाइट?</label>
-      <div class="option-grid">
-        <div class="option-btn selected" id="opt-bw" onclick="setColorMode('bw')">
-          <strong>ब्लैक & व्हाइट</strong>
-          <span id="label-bw-rate">₹2 / पेज</span>
-        </div>
-        <div class="option-btn" id="opt-color" onclick="setColorMode('color')">
-          <strong>फुल कलर</strong>
-          <span id="label-color-rate">₹10 / पेज</span>
-        </div>
-      </div>
-
-      <div class="counter-row">
-        <div>
-          <strong style="display:block;font-size:0.9rem;">कुल पेज (Pages)</strong>
-          <span style="font-size:0.75rem;color:#64748b;">फ़ाइल के पेज</span>
-        </div>
-        <div class="counter-ctrl">
-          <button class="btn-circle" onclick="adjustCount('pages', -1)">-</button>
-          <strong id="val-pages" style="font-size:1.1rem;min-width:24px;text-align:center;">1</strong>
-          <button class="btn-circle" onclick="adjustCount('pages', 1)">+</button>
-        </div>
-      </div>
-
-      <div class="counter-row">
-        <div>
-          <strong style="display:block;font-size:0.9rem;">कॉपियाँ (Copies)</strong>
-          <span style="font-size:0.75rem;color:#64748b;">कितने सेट प्रिंट करने हैं</span>
-        </div>
-        <div class="counter-ctrl">
-          <button class="btn-circle" onclick="adjustCount('copies', -1)">-</button>
-          <strong id="val-copies" style="font-size:1.1rem;min-width:24px;text-align:center;">1</strong>
-          <button class="btn-circle" onclick="adjustCount('copies', 1)">+</button>
-        </div>
-      </div>
-
-      <div class="price-box">
-        <div>
-          <div class="price-label">कुल भुगतान राशि</div>
-          <div style="font-size:0.75rem;color:#cbd5e1;" id="price-calc-hint">1 पेज × 1 कॉपी × ₹2</div>
-        </div>
-        <div class="price-val" id="total-price-disp">₹2</div>
-      </div>
-
-      <button class="btn-primary" onclick="goToStep(3)">प्रिंट के लिए आगे बढ़ें →</button>
-      <button class="btn-secondary" onclick="goToStep(1)">← वापस जाएं</button>
-    </section>
-
-    <!-- STEP 3: Confirm & Payment -->
-    <section class="panel" id="panel-step-3" style="display:none;">
-      <h3 class="panel-title">चरण 3: भुगतान & पुष्टि</h3>
-      <p class="panel-sub">दुकानदार को प्रिंट ऑर्डर भेजें।</p>
-
-      <div class="price-box" style="margin-top:0;margin-bottom:16px;">
-        <div class="price-label">देय राशि</div>
-        <div class="price-val" id="confirm-price-disp">₹2</div>
-      </div>
-
-      <label style="font-size:0.85rem;font-weight:700;display:block;margin-bottom:8px;">भुगतान का माध्यम चुनें:</label>
-      <div class="option-grid" style="margin-bottom:20px;">
-        <div class="option-btn selected" id="opt-pay-cash" onclick="setPayMode('cash')">
-          <strong>काउंटर पर नकद</strong>
-          <span>Cash at Shop</span>
-        </div>
-        <div class="option-btn" id="opt-pay-upi" onclick="setPayMode('upi')">
-          <strong>ऑनलाइन UPI</strong>
-          <span>GPay / PhonePe</span>
-        </div>
-      </div>
-
-      <button class="btn-primary" onclick="submitOrder()">🖨️ प्रिंट ऑर्डर भेजें</button>
-      <button class="btn-secondary" onclick="goToStep(2)">← सेटिंग्स बदलें</button>
-    </section>
-
-    <!-- STEP 4: Success Screen -->
-    <section class="panel" id="panel-step-4" style="display:none;">
-      <div class="success-box">
-        <div class="success-badge">✓</div>
-        <h3 style="font-size:1.3rem;font-weight:800;color:#0f172a;margin-bottom:6px;">ऑर्डर सफलतापूर्वक भेजा गया!</h3>
-        <p style="font-size:0.85rem;color:#64748b;">आपका प्रिंट ऑर्डर ऑपरेटर कंप्यूटर तक पहुँच चुका है।</p>
-
-        <div class="token-box">
-          <div style="font-size:0.8rem;color:#1e3a8a;font-weight:700;margin-bottom:4px;">आपका ऑर्डर टोकन नंबर:</div>
-          <div class="token-num" id="disp-token-code">#AP-101</div>
-        </div>
-
-        <p style="font-size:0.85rem;color:#475569;margin-bottom:18px;">दुकान काउंटर पर यह टोकन नंबर दिखाकर अपना प्रिंट प्राप्त करें।</p>
-
-        <button class="btn-primary" onclick="resetKiosk()">नया दस्तावेज़ प्रिंट करें</button>
-      </div>
-    </section>
-
+    <span class="badge">AURA PRO</span>
   </div>
 
-  <script>
-    // App State
-    let state = {
-      shopCode: 'shop1',
-      shopName: 'Sabir Xerox Center',
-      bwRate: 2,
-      colorRate: 10,
-      file: null,
-      colorMode: 'bw',
-      pages: 1,
-      copies: 1,
-      payMode: 'cash',
-      total: 2
-    };
+  <div id="stepUpload">
+    <h3 style="margin-bottom:4px">दस्तावेज़ चुनें (Upload Document)</h3>
+    <p style="font-size:0.8rem;color:#64748b;margin-bottom:16px">प्रिंट के लिए PDF या फ़ोटो चुनें</p>
+    <div class="dropzone">
+      <input type="file" id="fInput" accept=".pdf,image/*">
+      <div class="icon">📁</div>
+      <strong style="display:block;color:#1e3a8a;font-size:1.05rem">यहाँ टैप करके फ़ाइल चुनें</strong>
+      <span style="font-size:0.75rem;color:#64748b">PDF, JPG, PNG (Max 100MB)</span>
+    </div>
+  </div>
 
-    // Initialize Shop Data
-    (function initShop() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('shop') || 'shop1';
-      state.shopCode = code;
+  <div id="stepSettings" style="display:none">
+    <div class="row">
+      <b id="fName" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">file.pdf</b>
+      <span id="fSize" style="font-size:0.75rem;color:#64748b">1 MB</span>
+    </div>
+    <div class="grid2">
+      <div class="opt active" id="optBw" onclick="setMode('bw')"><b>Black & White</b><div style="color:#2563eb;font-weight:700">₹2 / पेज</div></div>
+      <div class="opt" id="optColor" onclick="setMode('color')"><b>Color Print</b><div style="color:#2563eb;font-weight:700">₹10 / पेज</div></div>
+    </div>
+    <div class="row">
+      <span>पेज (Pages)</span>
+      <div class="ctrl"><button onclick="chg('p',-1)">-</button> <b id="valP" style="margin:0 8px">1</b> <button onclick="chg('p',1)">+</button></div>
+    </div>
+    <div class="row">
+      <span>कॉपियाँ (Copies)</span>
+      <div class="ctrl"><button onclick="chg('c',-1)">-</button> <b id="valC" style="margin:0 8px">1</b> <button onclick="chg('c',1)">+</button></div>
+    </div>
+    <div class="price-tag"><span style="font-size:0.85rem;color:#94a3b8">कुल राशि:</span><span id="valTotal">₹2</span></div>
+    <button class="btn" onclick="submit()">🖨️ प्रिंट ऑर्डर भेजें</button>
+    <button class="btn-sec" onclick="reset()">← फ़ाइल बदलें</button>
+  </div>
 
-      try {
-        const stored = JSON.parse(localStorage.getItem('aura_shops') || '[]');
-        const current = stored.find(s => s.code === code);
-        if (current) {
-          state.shopName = current.name || 'Sabir Xerox Center';
-          state.bwRate = parseInt(current.bw) || 2;
-          state.colorRate = parseInt(current.color) || 10;
-        }
-      } catch(e) {}
+  <div id="stepDone" style="display:none;text-align:center">
+    <div style="font-size:3rem;margin-bottom:8px">✅</div>
+    <h3 style="color:#16a34a">ऑर्डर सफलतापूर्वक भेजा गया!</h3>
+    <p style="font-size:0.85rem;color:#64748b;margin-top:4px">काउंटर पर यह टोकन नंबर बताएं:</p>
+    <div class="token" id="tokenNo">#AP-101</div>
+    <button class="btn" onclick="reset()">नया प्रिंट करें</button>
+  </div>
+</div>
 
-      document.getElementById('kiosk-shop-name').innerText = state.shopName;
-      document.getElementById('kiosk-shop-code').innerText = state.shopCode;
-      document.getElementById('label-bw-rate').innerText = '₹' + state.bwRate + ' / पेज';
-      document.getElementById('label-color-rate').innerText = '₹' + state.colorRate + ' / पेज';
-    })();
+<script>
+let state = { file: null, mode: 'bw', p: 1, c: 1, bw: 2, col: 10, code: 'shop1' };
+const urlP = new URLSearchParams(window.location.search);
+state.code = urlP.get('shop') || localStorage.getItem('last_shop') || 'shop1';
+document.getElementById('shopCode').innerText = state.code;
 
-    // File Input Logic
-    const realInput = document.getElementById('real-file-input');
-    const triggerBox = document.getElementById('btn-trigger-upload');
+document.getElementById('fInput').onchange = (e) => {
+  if (!e.target.files[0]) return;
+  state.file = e.target.files[0];
+  document.getElementById('fName').innerText = state.file.name;
+  document.getElementById('fSize').innerText = (state.file.size/1048576).toFixed(1) + ' MB';
+  document.getElementById('stepUpload').style.display = 'none';
+  document.getElementById('stepSettings').style.display = 'block';
+  calc();
+};
 
-    triggerBox.addEventListener('click', () => {
-      realInput.click();
-    });
+function setMode(m) {
+  state.mode = m;
+  document.getElementById('optBw').classList.toggle('active', m==='bw');
+  document.getElementById('optColor').classList.toggle('active', m==='color');
+  calc();
+}
 
-    realInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handleSelectedFile(e.target.files[0]);
-      }
-    });
+function chg(k, d) {
+  state[k] = Math.max(1, state[k] + d);
+  document.getElementById(k === 'p' ? 'valP' : 'valC').innerText = state[k];
+  calc();
+}
 
-    // Drag and Drop
-    triggerBox.addEventListener('dragover', (e) => { e.preventDefault(); triggerBox.style.borderColor = '#1d4ed8'; });
-    triggerBox.addEventListener('dragleave', () => { triggerBox.style.borderColor = '#3b82f6'; });
-    triggerBox.addEventListener('drop', (e) => {
-      e.preventDefault();
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleSelectedFile(e.dataTransfer.files[0]);
-      }
-    });
+function calc() {
+  const tot = state.p * state.c * (state.mode === 'color' ? state.col : state.bw);
+  document.getElementById('valTotal').innerText = '₹' + tot;
+}
 
-    function handleSelectedFile(file) {
-      state.file = file;
-      document.getElementById('disp-file-name').innerText = file.name;
-      document.getElementById('disp-file-size').innerText = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-      
-      // Auto estimate PDF page count if applicable
-      if (file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onloadend = function() {
-          const match = reader.result.match(/\/Type\s*\/Page[^s]/g);
-          if (match && match.length > 0) {
-            state.pages = match.length;
-            document.getElementById('val-pages').innerText = state.pages;
-          }
-          calcTotal();
-        };
-        reader.readAsBinaryString(file.slice(0, 50000));
-      }
+function submit() {
+  const tok = '#AP-' + Math.floor(1000 + Math.random() * 9000);
+  document.getElementById('tokenNo').innerText = tok;
+  document.getElementById('stepSettings').style.display = 'none';
+  document.getElementById('stepDone').style.display = 'block';
+  const order = { token: tok, shop: state.code, name: state.file.name, mode: state.mode, pages: state.p, copies: state.c, time: new Date().toLocaleTimeString() };
+  let ords = JSON.parse(localStorage.getItem('aura_orders') || '[]');
+  ords.unshift(order);
+  localStorage.setItem('aura_orders', JSON.stringify(ords));
+  const fd = new FormData();
+  fd.append('file', state.file);
+  fd.append('meta', JSON.stringify(order));
+  fetch('/api/create-order', { method: 'POST', body: fd }).catch(()=>{});
+}
 
-      calcTotal();
-      goToStep(2);
-    }
-
-    document.getElementById('btn-change-file').onclick = () => {
-      state.file = null;
-      realInput.value = '';
-      goToStep(1);
-    };
-
-    function setColorMode(mode) {
-      state.colorMode = mode;
-      document.getElementById('opt-bw').classList.toggle('selected', mode === 'bw');
-      document.getElementById('opt-color').classList.toggle('selected', mode === 'color');
-      calcTotal();
-    }
-
-    function setPayMode(mode) {
-      state.payMode = mode;
-      document.getElementById('opt-pay-cash').classList.toggle('selected', mode === 'cash');
-      document.getElementById('opt-pay-upi').classList.toggle('selected', mode === 'upi');
-    }
-
-    function adjustCount(type, delta) {
-      if (type === 'pages') {
-        state.pages = Math.max(1, state.pages + delta);
-        document.getElementById('val-pages').innerText = state.pages;
-      } else {
-        state.copies = Math.max(1, state.copies + delta);
-        document.getElementById('val-copies').innerText = state.copies;
-      }
-      calcTotal();
-    }
-
-    function calcTotal() {
-      const rate = state.colorMode === 'color' ? state.colorRate : state.bwRate;
-      state.total = state.pages * state.copies * rate;
-      document.getElementById('total-price-disp').innerText = '₹' + state.total;
-      document.getElementById('confirm-price-disp').innerText = '₹' + state.total;
-      document.getElementById('price-calc-hint').innerText = `${state.pages} पेज × ${state.copies} कॉपी × ₹${rate}`;
-    }
-
-    function goToStep(num) {
-      [1, 2, 3, 4].forEach(n => {
-        const p = document.getElementById('panel-step-' + n);
-        if (p) p.style.display = (n === num) ? 'block' : 'none';
-        const nav = document.getElementById('step-nav-' + n);
-        if (nav) nav.classList.toggle('active', n <= num);
-      });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function submitOrder() {
-      const token = '#AP-' + Math.floor(1000 + Math.random() * 9000);
-      const newOrder = {
-        token: token,
-        shopCode: state.shopCode,
-        fileName: state.file ? state.file.name : 'Document.pdf',
-        fileSize: state.file ? (state.file.size / 1024).toFixed(0) + ' KB' : '500 KB',
-        colorMode: state.colorMode === 'color' ? 'Full Color' : 'Black & White',
-        pages: state.pages,
-        copies: state.copies,
-        total: state.total,
-        payMode: state.payMode === 'cash' ? 'Cash at Counter' : 'Online UPI',
-        status: 'Waiting to Print',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      try {
-        let orders = JSON.parse(localStorage.getItem('aura_orders') || '[]');
-        orders.unshift(newOrder);
-        localStorage.setItem('aura_orders', JSON.stringify(orders));
-      } catch(e) {}
-
-      document.getElementById('disp-token-code').innerText = token;
-      goToStep(4);
-    }
-
-    function resetKiosk() {
-      state.file = null;
-      realInput.value = '';
-      state.pages = 1;
-      state.copies = 1;
-      document.getElementById('val-pages').innerText = '1';
-      document.getElementById('val-copies').innerText = '1';
-      setColorMode('bw');
-      goToStep(1);
-    }
-  </script>
+function reset() {
+  document.getElementById('fInput').value = '';
+  document.getElementById('stepUpload').style.display = 'block';
+  document.getElementById('stepSettings').style.display = 'none';
+  document.getElementById('stepDone').style.display = 'none';
+}
+</script>
 </body>
 </html>
