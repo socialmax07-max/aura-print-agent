@@ -2,490 +2,403 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AURA Print Pro — ग्राहक प्रिंट कियोस्क (Self-Service Kiosk)</title>
-  <meta name="description" content="AURA Print Pro Self-Service Customer Printing Kiosk. Upload PDF or photo, preview, select pages, pay via UPI or cash, and print automatically.">
-  <link rel="icon" type="image/svg+xml" href="./assets/images/logo.svg">
-  
-  <!-- Global & Kiosk Design System -->
-  <link rel="stylesheet" href="./assets/styles/global.css">
-  <link rel="stylesheet" href="./kiosk/kiosk.css">
-
-  <!-- PDF.js Engine (Worker & Library for in-browser client rendering) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-</head>
-<body class="kiosk-body">
-
-  <!-- ==================== KIOSK HEADER & SHOP IDENTITY ==================== -->
-  <header class="kiosk-header">
-    <div class="kiosk-container header-inner">
-      <div class="shop-brand">
-        <img src="./assets/images/logo.svg" alt="AURA Print Pro" class="kiosk-logo">
-        <div class="shop-meta">
-          <h1 id="shopNameDisplay" class="shop-title">लोड हो रहा है...</h1>
-          <span class="shop-badge">
-            <span class="status-dot"></span>
-            Shop Code: <strong id="shopCodeDisplay" class="text-mono">---</strong>
-          </span>
-        </div>
-      </div>
-      <div class="kiosk-header-actions">
-        <a href="/" class="btn btn-outline btn-sm text-xs">बदलें / Change</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- ==================== 3-STEP PROGRESS STEPPER ==================== -->
-  <nav class="kiosk-container stepper-section" aria-label="प्रिंट प्रक्रिया चरण">
-    <div class="stepper-container">
-      <div class="stepper-track"></div>
-      <div id="stepperProgressBar" class="stepper-progress" style="width: 0%;"></div>
-
-      <!-- Step 1 Indicator -->
-      <div id="stepIndicator1" class="step-item active">
-        <div class="step-bubble">1</div>
-        <span class="step-label">अपलोड (Upload)</span>
-      </div>
-
-      <!-- Step 2 Indicator -->
-      <div id="stepIndicator2" class="step-item">
-        <div class="step-bubble">2</div>
-        <span class="step-label">सेटिंग्स (Settings)</span>
-      </div>
-
-      <!-- Step 3 Indicator -->
-      <div id="stepIndicator3" class="step-item">
-        <div class="step-bubble">3</div>
-        <span class="step-label">भुगतान (Payment)</span>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ==================== MAIN INTERACTIVE WIZARD ==================== -->
-  <main class="kiosk-container kiosk-main">
-
-    <!-- Global Alert / Status Feedback Banner -->
-    <div id="kioskGlobalAlert" class="alert alert-danger hidden" role="alert">
-      <span class="alert-icon">⚠️</span>
-      <div id="kioskGlobalAlertText" class="alert-message"></div>
-    </div>
-
-    <!-- ------------------------------------------------------------------ -->
-    <!-- STEP 1: FILE UPLOAD & VALIDATION                                   -->
-    <!-- ------------------------------------------------------------------ -->
-    <section id="viewStep1" class="kiosk-card active-step-view">
-      <div class="card-header">
-        <div>
-          <h2>चरण 1: दस्तावेज़ चुनें (Upload Document)</h2>
-          <p class="text-sm text-muted">प्रिंट करने के लिए अपनी PDF फ़ाइल या फ़ोटो अपलोड करें।</p>
-        </div>
-      </div>
-
-      <div class="card-body">
-        <!-- Interactive Drag & Drop Area -->
-        <div id="uploadDropZone" class="upload-dropzone" tabindex="0" role="button" aria-label="फ़ाइल चुनें या यहाँ छोड़ें">
-          <input 
-            type="file" 
-            id="kioskFileInput" 
-            class="hidden-file-input" 
-            accept=".pdf, .jpg, .jpeg, .png, application/pdf, image/jpeg, image/png"
-          >
-          <div class="dropzone-content">
-            <div class="upload-icon-circle">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
-            </div>
-            <h3 class="dropzone-title">फ़ाइल चुनने के लिए यहाँ टैप करें</h3>
-            <p class="dropzone-sub">या अपने फ़ोन/कंप्यूटर से फ़ाइल ड्रैग करें</p>
-            
-            <div class="format-tags">
-              <span class="badge badge-neutral">PDF</span>
-              <span class="badge badge-neutral">JPG / JPEG</span>
-              <span class="badge badge-neutral">PNG</span>
-              <span class="badge badge-primary">अधिकतम 100 MB</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Processing Loader (Hidden initially) -->
-        <div id="uploadProcessingState" class="processing-box hidden">
-          <div class="spinner" style="border-width: 3px; width: 2.25rem; height: 2.25rem; color: var(--primary-600);"></div>
-          <p id="uploadProcessingMsg" class="text-bold" style="margin-top: 1rem;">दस्तावेज़ की जांच हो रही है...</p>
-          <span class="text-xs text-muted">कृपया प्रतीक्षा करें (Reading pages & verifying format)</span>
-        </div>
-
-        <!-- Safe Hindi Privacy Notice -->
-        <div class="alert alert-info" style="margin-top: 1.5rem;">
-          <span style="font-size: 1.25rem;">🔒</span>
-          <div class="text-xs">
-            <strong>सुरक्षित व निजी (100% Private):</strong> आपकी फ़ाइल केवल इस दुकान के प्रिंटर पर प्रिंट होगी। प्रिंट होने के बाद फ़ाइल सिस्टम से स्वतः हटा दी जाती है।
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ------------------------------------------------------------------ -->
-    <!-- STEP 2: PREVIEW & PRINT CONFIGURATION                              -->
-    <!-- ------------------------------------------------------------------ -->
-    <section id="viewStep2" class="kiosk-card hidden">
-      <div class="card-header">
-        <div>
-          <h2>चरण 2: सेटिंग्स व प्रिव्यू (Preview & Settings)</h2>
-          <p class="text-sm text-muted">पेज और प्रिंट विकल्प चुनें। नीचे सटीक मूल्य (Price) देखें।</p>
-        </div>
-      </div>
-
-      <div class="card-body preview-layout">
-        
-        <!-- Left: Real Document Preview Container -->
-        <div class="preview-column">
-          <div class="preview-toolbar">
-            <div class="toolbar-nav">
-              <button type="button" id="btnPrevPage" class="btn btn-outline btn-sm" aria-label="पिछला पेज">◀ पिछला</button>
-              <span id="pageCounterText" class="text-sm text-bold text-mono">पेज 1 / 1</span>
-              <button type="button" id="btnNextPage" class="btn btn-outline btn-sm" aria-label="अगला पेज">अगला ▶</button>
-            </div>
-            <div class="toolbar-zoom">
-              <button type="button" id="btnZoomOut" class="btn btn-outline btn-sm" title="ज़ूम आउट">−</button>
-              <button type="button" id="btnZoomFit" class="btn btn-outline btn-sm text-xs">Fit</button>
-              <button type="button" id="btnZoomIn" class="btn btn-outline btn-sm" title="ज़ूम इन">+</button>
-            </div>
-          </div>
-
-          <!-- Document Canvas Viewport -->
-          <div id="previewViewport" class="preview-viewport">
-            <canvas id="docCanvas" class="preview-canvas"></canvas>
-            
-            <!-- Image Transform Toolbar (Visible only for JPG/PNG uploads) -->
-            <div id="imageTransformControls" class="image-controls-overlay hidden">
-              <span class="text-xs text-bold" style="background: rgba(0,0,0,0.7); color: #fff; padding: 2px 8px; border-radius: 4px;">फोटो स्थिति / Image Alignment</span>
-              <div class="btn-group">
-                <button type="button" id="btnImgRotate" class="btn btn-secondary btn-sm" title="90° घुमाएं">🔄 Rotate 90°</button>
-                <button type="button" id="btnImgReset" class="btn btn-secondary btn-sm" title="रीसेट करें">Reset</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Selected File Details Bar -->
-          <div class="file-summary-bar">
-            <span id="previewFileName" class="text-xs text-bold text-truncate">document.pdf</span>
-            <span id="previewFileSize" class="text-xs text-muted">2.4 MB</span>
-            <span id="previewPageCountBadge" class="badge badge-primary">1 कुल पेज</span>
-          </div>
-        </div>
-
-        <!-- Right: Print Settings Form -->
-        <div class="settings-column">
-          <form id="printSettingsForm" onsubmit="event.preventDefault();">
-
-            <!-- Page Selection (All vs Custom Range) -->
-            <div class="form-group">
-              <label class="form-label">कौन से पेज प्रिंट करने हैं? (Pages to Print)</label>
-              <div class="radio-toggle-group">
-                <label class="radio-toggle-btn">
-                  <input type="radio" name="pageSelectionMode" value="ALL" checked>
-                  <span>सभी पेज (All Pages)</span>
-                </label>
-                <label class="radio-toggle-btn">
-                  <input type="radio" name="pageSelectionMode" value="CUSTOM">
-                  <span>कस्टम पेज (Specific Pages)</span>
-                </label>
-              </div>
-
-              <!-- Custom Range Input Field -->
-              <div id="customPageRangeBox" class="custom-range-box hidden">
-                <input 
-                  type="text" 
-                  id="pageRangeInput" 
-                  class="form-input text-mono" 
-                  placeholder="उदा. 1-3, 5, 8" 
-                  aria-describedby="pageRangeHint"
-                >
-                <p id="pageRangeHint" class="form-hint">कॉमा (,) और हाइफ़न (-) का प्रयोग करें (उदा. 1-4, 7)।</p>
-                <div id="pageRangeError" class="form-error hidden"></div>
-              </div>
-            </div>
-
-            <!-- Color Options (B&W vs Colour) -->
-            <div class="form-group">
-              <label class="form-label">प्रिंट का प्रकार (Print Mode)</label>
-              <div class="option-grid">
-                <label class="option-tile">
-                  <input type="radio" name="printColor" value="BW" checked>
-                  <div class="tile-content">
-                    <span class="tile-icon">⬛</span>
-                    <strong class="tile-title">ब्लैक एंड व्हाइट (B&W)</strong>
-                    <span id="bwRateLabel" class="tile-sub text-muted">₹2 / ₹3 प्रति शीट</span>
-                  </div>
-                </label>
-                <label class="option-tile">
-                  <input type="radio" name="printColor" value="COLOR">
-                  <div class="tile-content">
-                    <span class="tile-icon">🎨</span>
-                    <strong class="tile-title">रंगीन (Colour)</strong>
-                    <span id="colorRateLabel" class="tile-sub text-muted">₹10 / ₹16 प्रति शीट</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            <!-- Sides Option (Single vs Duplex) -->
-            <div class="form-group">
-              <label class="form-label">कागज़ के दोनों तरफ या एक तरफ? (Sides)</label>
-              <div class="option-grid">
-                <label class="option-tile">
-                  <input type="radio" name="printDuplex" value="SINGLE" checked>
-                  <div class="tile-content">
-                    <strong class="tile-title">एक तरफ (Single Sided)</strong>
-                    <span class="tile-sub text-muted">हर पेज अलग शीट पर</span>
-                  </div>
-                </label>
-                <label class="option-tile">
-                  <input type="radio" name="printDuplex" value="DUPLEX">
-                  <div class="tile-content">
-                    <strong class="tile-title">दोनों तरफ (Double Sided)</strong>
-                    <span class="tile-sub text-muted">आगे और पीछे (किफायती)</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            <!-- Copies Counter -->
-            <div class="form-group">
-              <label class="form-label" for="copyCountInput">कितनी प्रतियां चाहिए? (Copies)</label>
-              <div class="stepper-input">
-                <button type="button" id="btnMinusCopy" class="stepper-btn" aria-label="प्रतियां घटाएं">−</button>
-                <input 
-                  type="number" 
-                  id="copyCountInput" 
-                  class="stepper-field text-mono" 
-                  value="1" 
-                  min="1" 
-                  max="100" 
-                  readonly
-                >
-                <button type="button" id="btnPlusCopy" class="stepper-btn" aria-label="प्रतियां बढ़ाएं">+</button>
-              </div>
-            </div>
-
-            <!-- Paper Size Selector -->
-            <div class="form-group">
-              <label class="form-label" for="paperSizeSelect">कागज़ का साइज़ (Paper Size)</label>
-              <select id="paperSizeSelect" class="form-select">
-                <option value="A4" selected>A4 (मानक साइज़ - 210 x 297 mm)</option>
-                <option value="LEGAL">Legal (शपथ पत्र / एग्रीमेंट - 8.5 x 14 in)</option>
-              </select>
-            </div>
-
-            <!-- Authoritative Live Price Breakdown Card -->
-            <div class="quote-summary-card">
-              <div class="quote-header">
-                <span class="text-xs text-bold uppercase">कुल बिल (Price Breakdown)</span>
-                <span class="badge badge-success">Live Quote</span>
-              </div>
-              
-              <div class="quote-rows">
-                <div class="quote-row">
-                  <span class="text-sm text-muted">चुने गए पेज (Selected Pages):</span>
-                  <strong id="quoteSelectedPages" class="text-mono">1</strong>
-                </div>
-                <div class="quote-row">
-                  <span class="text-sm text-muted">कागज़ की सीटें (Physical Sheets):</span>
-                  <strong id="quoteTotalSheets" class="text-mono">1 शीट</strong>
-                </div>
-                <div class="quote-row">
-                  <span class="text-sm text-muted">प्रतियां (Copies):</span>
-                  <strong id="quoteCopies" class="text-mono">1</strong>
-                </div>
-                <div class="quote-row">
-                  <span class="text-sm text-muted">दर प्रति यूनिट (Rate):</span>
-                  <strong id="quoteUnitRate" class="text-mono">₹2.00</strong>
-                </div>
-                <div class="quote-divider"></div>
-                <div class="quote-row quote-total">
-                  <span>कुल देय राशि (Total Amount):</span>
-                  <span id="quoteGrandTotal" class="total-price">₹2.00</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Step Navigation Buttons -->
-            <div class="step-actions">
-              <button type="button" id="btnBackToUpload" class="btn btn-outline">
-                ← फ़ाइल बदलें (Back)
-              </button>
-              <button type="button" id="btnProceedToPayment" class="btn btn-primary btn-lg">
-                भुगतान के लिए आगे बढ़ें (Pay Now) →
-              </button>
-            </div>
-
-          </form>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ------------------------------------------------------------------ -->
-    <!-- STEP 3: PAYMENT & CONFIRMATION                                     -->
-    <!-- ------------------------------------------------------------------ -->
-    <section id="viewStep3" class="kiosk-card hidden">
-      <div class="card-header">
-        <div>
-          <h2>चरण 3: भुगतान करें (Payment & Print Confirmation)</h2>
-          <p class="text-sm text-muted">UPI QR स्कैन करें या काउंटर पर नकद (Cash) जमा करें।</p>
-        </div>
-      </div>
-
-      <div class="card-body">
-        
-        <!-- Order Identification Banner -->
-        <div class="order-id-banner">
-          <div>
-            <span class="text-xs text-muted uppercase">ऑर्डर संख्या (Order ID)</span>
-            <div id="displayOrderId" class="order-id-code text-mono">ORD-XXXXXX</div>
-          </div>
-          <div style="text-align: right;">
-            <span class="text-xs text-muted uppercase">कुल राशि (Amount Due)</span>
-            <div id="displayPaymentAmount" class="order-id-amount">₹0.00</div>
-          </div>
-        </div>
-
-        <!-- Payment Method Tabs -->
-        <div class="payment-tabs">
-          <button type="button" id="tabUpiBtn" class="payment-tab active" onclick="switchPaymentMode('UPI')">
-            📱 UPI क्यूआर कोड (GPay, PhonePe, Paytm)
-          </button>
-          <button type="button" id="tabCashBtn" class="payment-tab" onclick="switchPaymentMode('CASH')">
-            💵 काउंटर पर नकद (Cash at Counter)
-          </button>
-        </div>
-
-        <!-- Tab 1 View: UPI Payment Interface -->
-        <div id="paymentViewUpi" class="payment-tab-content">
-          <div class="upi-box">
-            <p class="text-sm text-center" style="margin-bottom: 0.75rem;">
-              किसी भी UPI ऐप से यह QR कोड स्कैन करके सटीक <strong><span id="upiAmountHighlight">₹0.00</span></strong> का भुगतान करें:
-            </p>
-
-            <!-- Dynamic QR Canvas Container -->
-            <div class="qr-wrapper">
-              <div id="qrLoadingSpinner" class="spinner" style="width: 2rem; height: 2rem; color: var(--primary-600);"></div>
-              <img id="upiQrImage" class="upi-qr-image hidden" alt="UPI Payment QR Code">
-            </div>
-
-            <!-- Payee VPA Details & Copy Action -->
-            <div class="upi-vpa-strip">
-              <span class="text-xs text-muted">दुकान की UPI ID:</span>
-              <span id="displayShopUpiId" class="text-sm text-mono text-bold">shop@upi</span>
-              <button type="button" id="btnCopyUpi" class="btn btn-secondary btn-sm" onclick="copyShopUpiId()">
-                कॉपी (Copy)
-              </button>
-            </div>
-
-            <!-- Direct UPI Deep Link for Mobile Browsers -->
-            <div class="upi-mobile-intent">
-              <a id="upiIntentAnchor" href="#" class="btn btn-primary btn-full">
-                📲 फ़ोन में सीधे UPI ऐप खोलें (Pay Directly)
-              </a>
-            </div>
-
-            <!-- Customer "I Have Paid" Action -->
-            <div class="paid-action-card">
-              <p class="text-xs text-muted" style="margin-bottom: 0.75rem;">
-                भुगतान पूरा होने के बाद नीचे दिए गए बटन को दबाएं। दुकानदार बैंक खाते में पुष्टि (Verify) करके प्रिंट जारी करेंगे।
-              </p>
-              <button type="button" id="btnConfirmUpiPaid" class="btn btn-success btn-lg btn-full">
-                ✔ मैंने पेमेंट कर दिया (I Have Paid)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 2 View: Cash at Counter Interface -->
-        <div id="paymentViewCash" class="payment-tab-content hidden">
-          <div class="cash-box">
-            <div class="cash-icon-circle">💵</div>
-            <h3>काउंटर पर नकद जमा करें</h3>
-            <p class="text-sm" style="margin-top: 0.5rem; max-width: 420px; margin-inline: auto;">
-              कृपया दुकानदार के पास जाएं और ऑर्डर ID <strong id="cashOrderIdDisplay" class="text-mono">---</strong> बताकर 
-              <strong id="cashAmountDisplay">₹0.00</strong> नकद जमा करें।
-            </p>
-
-            <div class="alert alert-warning" style="margin-top: 1.5rem; text-align: left;">
-              <span style="font-size: 1.25rem;">⚠️</span>
-              <div class="text-xs">
-                <strong>ध्यान दें:</strong> दुकानदार द्वारा सिस्टम में नकद प्राप्ति की पुष्टि (Cash Confirmation) किए बिना प्रिंटर से प्रिंट नहीं निकलेगा।
-              </div>
-            </div>
-
-            <button type="button" id="btnSelectCashOrder" class="btn btn-primary btn-lg btn-full" style="margin-top: 1rem;">
-              नकद ऑर्डर सबमिट करें (Submit Cash Order)
-            </button>
-          </div>
-        </div>
-
-        <!-- Real-Time Order Tracking State View (Post Submission) -->
-        <div id="orderStatusTracker" class="status-tracker-card hidden">
-          <div class="tracker-header">
-            <span class="text-xs uppercase text-bold">ऑर्डर स्थिति (Live Order Status)</span>
-            <span id="orderStatusBadge" class="badge badge-warning">Awaiting Payment</span>
-          </div>
-          
-          <div class="tracker-body">
-            <div id="trackerStatusIcon" class="tracker-icon-pulsing">⏳</div>
-            <h3 id="trackerStatusTitle" style="margin-bottom: 0.25rem;">सत्यापन की प्रतीक्षा है...</h3>
-            <p id="trackerStatusDesc" class="text-sm text-muted">दुकानदार आपके भुगतान की जांच कर रहे हैं।</p>
-          </div>
-
-          <div class="tracker-footer">
-            <span class="text-xs text-muted">यह पेज खुला रखें। प्रिंट पूरा होने पर यहाँ सूचना मिलेगी।</span>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ==================== KIOSK FOOTER ==================== -->
-  <footer class="kiosk-footer">
-    <div class="kiosk-container text-center">
-      <p class="text-xs text-muted">
-        AURA Print Pro &bull; सुरक्षित क्लाउड प्रिंटिंग &bull; Sabir Ansari
-      </p>
-    </div>
-  </footer>
-
-  <!-- Main Kiosk Modular Application Coordinator -->
-  <script type="module" src="./kiosk/kiosk-app.js"></script>
-</body>
-</html><script>
-(function() {
-  function fixKioskHeader() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const shopCode = urlParams.get('shop') || localStorage.getItem('last_shop') || 'shop1';
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Aura Print Pro — Customer Kiosk</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, Roboto, sans-serif; }
+    body { background: #f8fafc; color: #0f172a; padding: 14px; min-height: 100vh; }
+    .kiosk-container { max-width: 500px; margin: 0 auto; }
     
-    // Header me loading text ko dukan ke naam aur code se replace karna
-    document.querySelectorAll('*').forEach(el => {
-      if (el.innerText && el.innerText.includes("It's loading")) {
-        el.innerText = "Sabir Xerox Center";
-        el.style.fontWeight = "700";
-        el.style.color = "#0f172a";
-      }
-      if (el.innerText && el.innerText.includes("Shop Code: ---")) {
-        el.innerHTML = `<span style="color:#10b981;">●</span> Shop Code: <b>${shopCode}</b>`;
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 14px 16px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-logo { background: #2563eb; color: #fff; font-weight: 800; font-size: 0.9rem; padding: 6px 10px; border-radius: 6px; }
+    .shop-meta h2 { font-size: 1rem; font-weight: 700; color: #0f172a; }
+    .shop-meta p { font-size: 0.75rem; color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; }
+
+    /* Stepper */
+    .stepper { display: flex; justify-content: space-between; position: relative; margin-bottom: 20px; }
+    .step-item { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 600; color: #94a3b8; }
+    .step-item.active { color: #2563eb; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-weight: 700; }
+    .step-item.active .step-num { background: #2563eb; color: #ffffff; }
+
+    /* Card Panels */
+    .panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .panel-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+    .panel-sub { font-size: 0.85rem; color: #64748b; margin-bottom: 18px; }
+
+    /* Upload Box */
+    .dropzone { border: 2px dashed #3b82f6; background: #eff6ff; border-radius: 14px; padding: 36px 16px; text-align: center; cursor: pointer; transition: 0.2s; }
+    .dropzone:active { transform: scale(0.98); background: #dbeafe; }
+    .upload-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .upload-title { font-size: 1.05rem; font-weight: 700; color: #1e3a8a; margin-bottom: 4px; }
+    .upload-hint { font-size: 0.8rem; color: #64748b; }
+    .file-badges { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+    .file-badge { background: #ffffff; border: 1px solid #cbd5e1; font-size: 0.7rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; color: #475569; }
+
+    /* File Preview Selected */
+    .file-card { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; }
+    .file-info { overflow: hidden; }
+    .file-info strong { display: block; font-size: 0.9rem; color: #0f172a; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 250px; }
+    .file-info span { font-size: 0.75rem; color: #64748b; }
+
+    /* Form Fields */
+    .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .option-btn { border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px; text-align: center; background: #fff; cursor: pointer; }
+    .option-btn.selected { border-color: #2563eb; background: #eff6ff; }
+    .option-btn strong { display: block; font-size: 0.95rem; color: #0f172a; }
+    .option-btn span { font-size: 0.8rem; color: #2563eb; font-weight: 600; }
+
+    .counter-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 14px; border-radius: 10px; margin-bottom: 14px; }
+    .counter-ctrl { display: flex; align-items: center; gap: 12px; }
+    .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #cbd5e1; background: #fff; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* Summary & Price */
+    .price-box { background: #0f172a; color: #fff; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }
+    .price-label { font-size: 0.85rem; color: #94a3b8; }
+    .price-val { font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
+
+    /* Action Buttons */
+    .btn-primary { width: 100%; padding: 14px; background: #2563eb; color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 14px; }
+    .btn-secondary { width: 100%; padding: 12px; background: transparent; color: #64748b; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+
+    /* Success Screen */
+    .success-box { text-align: center; padding: 20px 0; }
+    .success-badge { width: 64px; height: 64px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 16px; }
+    .token-box { background: #eff6ff; border: 1px dashed #2563eb; padding: 16px; border-radius: 12px; margin: 18px 0; }
+    .token-num { font-size: 2rem; font-weight: 800; color: #1e3a8a; letter-spacing: 2px; }
+  </style>
+</head>
+<body>
+  <div class="kiosk-container">
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">AURA</div>
+        <div class="shop-meta">
+          <h2 id="kiosk-shop-name">Sabir Xerox Center</h2>
+          <p><span class="dot"></span> Shop Code: <b id="kiosk-shop-code">shop1</b></p>
+        </div>
+      </div>
+      <a href="/index.html" style="text-decoration:none;font-size:0.8rem;color:#64748b;padding:6px 10px;background:#f1f5f9;border-radius:6px;">बदलें / Home</a>
+    </header>
+
+    <!-- Stepper Navigation -->
+    <div class="stepper">
+      <div class="step-item active" id="step-nav-1">
+        <div class="step-num">1</div>
+        दस्तावेज़ (Upload)
+      </div>
+      <div class="step-item" id="step-nav-2">
+        <div class="step-num">2</div>
+        सेटिंग्स (Settings)
+      </div>
+      <div class="step-item" id="step-nav-3">
+        <div class="step-num">3</div>
+        प्रिंट (Print)
+      </div>
+    </div>
+
+    <!-- Hidden native file input -->
+    <input type="file" id="real-file-input" accept=".pdf,image/png,image/jpeg,image/jpg" style="display:none;">
+
+    <!-- STEP 1: Upload Document -->
+    <section class="panel" id="panel-step-1">
+      <h3 class="panel-title">चरण 1: दस्तावेज़ चुनें</h3>
+      <p class="panel-sub">प्रिंट करने के लिए PDF फ़ाइल या फ़ोटो सेलेक्ट करें।</p>
+
+      <div class="dropzone" id="btn-trigger-upload">
+        <div class="upload-icon">📁</div>
+        <div class="upload-title">फ़ाइल चुनने के लिए यहाँ टैप करें</div>
+        <div class="upload-hint">या फ़ाइल को यहाँ ड्रैग करें</div>
+        <div class="file-badges">
+          <span class="file-badge">PDF</span>
+          <span class="file-badge">JPG / JPEG</span>
+          <span class="file-badge">PNG</span>
+          <span class="file-badge">MAX 100 MB</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: Configure Print -->
+    <section class="panel" id="panel-step-2" style="display:none;">
+      <h3 class="panel-title">चरण 2: प्रिंट सेटिंग्स</h3>
+      <p class="panel-sub">प्रिंट का प्रकार और कॉपियों की संख्या चुनें।</p>
+
+      <div class="file-card">
+        <div class="file-info">
+          <strong id="disp-file-name">document.pdf</strong>
+          <span id="disp-file-size">1.2 MB</span>
+        </div>
+        <button id="btn-change-file" style="background:#fee2e2;color:#ef4444;border:none;padding:6px 10px;border-radius:6px;font-weight:700;cursor:pointer;">हटाएं</button>
+      </div>
+
+      <label style="font-size:0.85rem;font-weight:700;display:block;margin-bottom:8px;">कलर या ब्लैक & व्हाइट?</label>
+      <div class="option-grid">
+        <div class="option-btn selected" id="opt-bw" onclick="setColorMode('bw')">
+          <strong>ब्लैक & व्हाइट</strong>
+          <span id="label-bw-rate">₹2 / पेज</span>
+        </div>
+        <div class="option-btn" id="opt-color" onclick="setColorMode('color')">
+          <strong>फुल कलर</strong>
+          <span id="label-color-rate">₹10 / पेज</span>
+        </div>
+      </div>
+
+      <div class="counter-row">
+        <div>
+          <strong style="display:block;font-size:0.9rem;">कुल पेज (Pages)</strong>
+          <span style="font-size:0.75rem;color:#64748b;">फ़ाइल के पेज</span>
+        </div>
+        <div class="counter-ctrl">
+          <button class="btn-circle" onclick="adjustCount('pages', -1)">-</button>
+          <strong id="val-pages" style="font-size:1.1rem;min-width:24px;text-align:center;">1</strong>
+          <button class="btn-circle" onclick="adjustCount('pages', 1)">+</button>
+        </div>
+      </div>
+
+      <div class="counter-row">
+        <div>
+          <strong style="display:block;font-size:0.9rem;">कॉपियाँ (Copies)</strong>
+          <span style="font-size:0.75rem;color:#64748b;">कितने सेट प्रिंट करने हैं</span>
+        </div>
+        <div class="counter-ctrl">
+          <button class="btn-circle" onclick="adjustCount('copies', -1)">-</button>
+          <strong id="val-copies" style="font-size:1.1rem;min-width:24px;text-align:center;">1</strong>
+          <button class="btn-circle" onclick="adjustCount('copies', 1)">+</button>
+        </div>
+      </div>
+
+      <div class="price-box">
+        <div>
+          <div class="price-label">कुल भुगतान राशि</div>
+          <div style="font-size:0.75rem;color:#cbd5e1;" id="price-calc-hint">1 पेज × 1 कॉपी × ₹2</div>
+        </div>
+        <div class="price-val" id="total-price-disp">₹2</div>
+      </div>
+
+      <button class="btn-primary" onclick="goToStep(3)">प्रिंट के लिए आगे बढ़ें →</button>
+      <button class="btn-secondary" onclick="goToStep(1)">← वापस जाएं</button>
+    </section>
+
+    <!-- STEP 3: Confirm & Payment -->
+    <section class="panel" id="panel-step-3" style="display:none;">
+      <h3 class="panel-title">चरण 3: भुगतान & पुष्टि</h3>
+      <p class="panel-sub">दुकानदार को प्रिंट ऑर्डर भेजें।</p>
+
+      <div class="price-box" style="margin-top:0;margin-bottom:16px;">
+        <div class="price-label">देय राशि</div>
+        <div class="price-val" id="confirm-price-disp">₹2</div>
+      </div>
+
+      <label style="font-size:0.85rem;font-weight:700;display:block;margin-bottom:8px;">भुगतान का माध्यम चुनें:</label>
+      <div class="option-grid" style="margin-bottom:20px;">
+        <div class="option-btn selected" id="opt-pay-cash" onclick="setPayMode('cash')">
+          <strong>काउंटर पर नकद</strong>
+          <span>Cash at Shop</span>
+        </div>
+        <div class="option-btn" id="opt-pay-upi" onclick="setPayMode('upi')">
+          <strong>ऑनलाइन UPI</strong>
+          <span>GPay / PhonePe</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="submitOrder()">🖨️ प्रिंट ऑर्डर भेजें</button>
+      <button class="btn-secondary" onclick="goToStep(2)">← सेटिंग्स बदलें</button>
+    </section>
+
+    <!-- STEP 4: Success Screen -->
+    <section class="panel" id="panel-step-4" style="display:none;">
+      <div class="success-box">
+        <div class="success-badge">✓</div>
+        <h3 style="font-size:1.3rem;font-weight:800;color:#0f172a;margin-bottom:6px;">ऑर्डर सफलतापूर्वक भेजा गया!</h3>
+        <p style="font-size:0.85rem;color:#64748b;">आपका प्रिंट ऑर्डर ऑपरेटर कंप्यूटर तक पहुँच चुका है।</p>
+
+        <div class="token-box">
+          <div style="font-size:0.8rem;color:#1e3a8a;font-weight:700;margin-bottom:4px;">आपका ऑर्डर टोकन नंबर:</div>
+          <div class="token-num" id="disp-token-code">#AP-101</div>
+        </div>
+
+        <p style="font-size:0.85rem;color:#475569;margin-bottom:18px;">दुकान काउंटर पर यह टोकन नंबर दिखाकर अपना प्रिंट प्राप्त करें।</p>
+
+        <button class="btn-primary" onclick="resetKiosk()">नया दस्तावेज़ प्रिंट करें</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // App State
+    let state = {
+      shopCode: 'shop1',
+      shopName: 'Sabir Xerox Center',
+      bwRate: 2,
+      colorRate: 10,
+      file: null,
+      colorMode: 'bw',
+      pages: 1,
+      copies: 1,
+      payMode: 'cash',
+      total: 2
+    };
+
+    // Initialize Shop Data
+    (function initShop() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('shop') || 'shop1';
+      state.shopCode = code;
+
+      try {
+        const stored = JSON.parse(localStorage.getItem('aura_shops') || '[]');
+        const current = stored.find(s => s.code === code);
+        if (current) {
+          state.shopName = current.name || 'Sabir Xerox Center';
+          state.bwRate = parseInt(current.bw) || 2;
+          state.colorRate = parseInt(current.color) || 10;
+        }
+      } catch(e) {}
+
+      document.getElementById('kiosk-shop-name').innerText = state.shopName;
+      document.getElementById('kiosk-shop-code').innerText = state.shopCode;
+      document.getElementById('label-bw-rate').innerText = '₹' + state.bwRate + ' / पेज';
+      document.getElementById('label-color-rate').innerText = '₹' + state.colorRate + ' / पेज';
+    })();
+
+    // File Input Logic
+    const realInput = document.getElementById('real-file-input');
+    const triggerBox = document.getElementById('btn-trigger-upload');
+
+    triggerBox.addEventListener('click', () => {
+      realInput.click();
+    });
+
+    realInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleSelectedFile(e.target.files[0]);
       }
     });
 
-    localStorage.setItem('last_shop', shopCode);
-  }
+    // Drag and Drop
+    triggerBox.addEventListener('dragover', (e) => { e.preventDefault(); triggerBox.style.borderColor = '#1d4ed8'; });
+    triggerBox.addEventListener('dragleave', () => { triggerBox.style.borderColor = '#3b82f6'; });
+    triggerBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleSelectedFile(e.dataTransfer.files[0]);
+      }
+    });
 
-  window.addEventListener('load', fixKioskHeader);
-  document.addEventListener('DOMContentLoaded', fixKioskHeader);
-  setTimeout(fixKioskHeader, 200);
-  setTimeout(fixKioskHeader, 1000);
-})();
-</script>
+    function handleSelectedFile(file) {
+      state.file = file;
+      document.getElementById('disp-file-name').innerText = file.name;
+      document.getElementById('disp-file-size').innerText = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+      
+      // Auto estimate PDF page count if applicable
+      if (file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          const match = reader.result.match(/\/Type\s*\/Page[^s]/g);
+          if (match && match.length > 0) {
+            state.pages = match.length;
+            document.getElementById('val-pages').innerText = state.pages;
+          }
+          calcTotal();
+        };
+        reader.readAsBinaryString(file.slice(0, 50000));
+      }
+
+      calcTotal();
+      goToStep(2);
+    }
+
+    document.getElementById('btn-change-file').onclick = () => {
+      state.file = null;
+      realInput.value = '';
+      goToStep(1);
+    };
+
+    function setColorMode(mode) {
+      state.colorMode = mode;
+      document.getElementById('opt-bw').classList.toggle('selected', mode === 'bw');
+      document.getElementById('opt-color').classList.toggle('selected', mode === 'color');
+      calcTotal();
+    }
+
+    function setPayMode(mode) {
+      state.payMode = mode;
+      document.getElementById('opt-pay-cash').classList.toggle('selected', mode === 'cash');
+      document.getElementById('opt-pay-upi').classList.toggle('selected', mode === 'upi');
+    }
+
+    function adjustCount(type, delta) {
+      if (type === 'pages') {
+        state.pages = Math.max(1, state.pages + delta);
+        document.getElementById('val-pages').innerText = state.pages;
+      } else {
+        state.copies = Math.max(1, state.copies + delta);
+        document.getElementById('val-copies').innerText = state.copies;
+      }
+      calcTotal();
+    }
+
+    function calcTotal() {
+      const rate = state.colorMode === 'color' ? state.colorRate : state.bwRate;
+      state.total = state.pages * state.copies * rate;
+      document.getElementById('total-price-disp').innerText = '₹' + state.total;
+      document.getElementById('confirm-price-disp').innerText = '₹' + state.total;
+      document.getElementById('price-calc-hint').innerText = `${state.pages} पेज × ${state.copies} कॉपी × ₹${rate}`;
+    }
+
+    function goToStep(num) {
+      [1, 2, 3, 4].forEach(n => {
+        const p = document.getElementById('panel-step-' + n);
+        if (p) p.style.display = (n === num) ? 'block' : 'none';
+        const nav = document.getElementById('step-nav-' + n);
+        if (nav) nav.classList.toggle('active', n <= num);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function submitOrder() {
+      const token = '#AP-' + Math.floor(1000 + Math.random() * 9000);
+      const newOrder = {
+        token: token,
+        shopCode: state.shopCode,
+        fileName: state.file ? state.file.name : 'Document.pdf',
+        fileSize: state.file ? (state.file.size / 1024).toFixed(0) + ' KB' : '500 KB',
+        colorMode: state.colorMode === 'color' ? 'Full Color' : 'Black & White',
+        pages: state.pages,
+        copies: state.copies,
+        total: state.total,
+        payMode: state.payMode === 'cash' ? 'Cash at Counter' : 'Online UPI',
+        status: 'Waiting to Print',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      try {
+        let orders = JSON.parse(localStorage.getItem('aura_orders') || '[]');
+        orders.unshift(newOrder);
+        localStorage.setItem('aura_orders', JSON.stringify(orders));
+      } catch(e) {}
+
+      document.getElementById('disp-token-code').innerText = token;
+      goToStep(4);
+    }
+
+    function resetKiosk() {
+      state.file = null;
+      realInput.value = '';
+      state.pages = 1;
+      state.copies = 1;
+      document.getElementById('val-pages').innerText = '1';
+      document.getElementById('val-copies').innerText = '1';
+      setColorMode('bw');
+      goToStep(1);
+    }
+  </script>
+</body>
+</html>
