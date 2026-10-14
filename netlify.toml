@@ -1,105 +1,11 @@
-# ==============================================================================
-# AURA PRINT PRO — NETLIFY MASTER DEPLOYMENT CONFIGURATION
-# Owner: Sabir Ansari
-# ==============================================================================
-
 [build]
-  # The directory containing the static HTML, CSS, client JS, and assets
   publish = "public"
-  
-  # The directory containing backend serverless Netlify Functions
   functions = "netlify/functions"
 
 [build.environment]
-  # Pin modern LTS Node environment for serverless functions execution
   NODE_VERSION = "20"
 
-[functions]
-  # Use esbuild for fast, deterministic serverless bundling
-  node_bundler = "esbuild"
-  
-  # Ensure the shared validation, pricing and state engine files are bundled
-  # into all Netlify Functions
-  included_files = ["src/shared/**"]
-
-# ------------------------------------------------------------------------------
-# API REWRITES & CLEAN ROUTING
-# ------------------------------------------------------------------------------
-
-# Route all /api/* calls to backend Netlify Functions seamlessly
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
-
-# Clean vanity Kiosk URLs: e.g. auraprintpro.in/k/delhi-cyber-hub
-[[redirects]]
-  from = "/k/:shopId"
-  to = "/kiosk.html?shop=:shopId"
-  status = 200
-
-# Operator dashboard clean route
-[[redirects]]
-  from = "/operator"
-  to = "/operator.html"
-  status = 200
-
-# Passport Photo Studio clean route
-[[redirects]]
-  from = "/passport"
-  to = "/passport.html"
-  status = 200
-
-# Sabir Ansari Super Admin Cockpit clean route
-[[redirects]]
-  from = "/admin"
-  to = "/admin.html"
-  status = 200
-
-# ------------------------------------------------------------------------------
-# SECURITY HEADERS
-# ------------------------------------------------------------------------------
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    # Prevent clickjacking attacks
-    X-Frame-Options = "DENY"
-    
-    # Prevent MIME-type sniffing
-    X-Content-Type-Options = "nosniff"
-    
-    # Restrict referrer leakage
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    
-    # Disable sensitive browser hardware APIs not needed by kiosk
-    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
-    
-    # Modern Content Security Policy allowing required CDNs (PDF.js worker blob, QR rendering, Firebase)
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.gstatic.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com;
-      img-src 'self' data: blob: https://api.qrserver.com https://firebasestorage.googleapis.com;
-      connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com;
-      worker-src 'self' blob:;
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      frame-ancestors 'none';
-    """
-
-# Optimized cache headers for immutable assets
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=604800, immutable"
-
-# Never cache API responses
-[[headers]]
-  for = "/api/*"
-  [headers.values]
-    Cache-Control = "no-store, no-cache, must-revalidate, proxy-revalidate"
-    Pragma = "no-cache"
-    Expires = "0"
-    
