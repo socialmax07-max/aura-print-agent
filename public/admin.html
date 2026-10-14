@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="stylesheet" href="/admin/admin.css"><link rel="stylesheet" href="/assets/styles/global.css">
+<head><link rel="stylesheet" href="/admin-clean.css"><script src="/patch-admin.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AURA Print Pro — Super Admin Platform Cockpit</title>
@@ -11,7 +11,7 @@
   <!-- Shared Global & Admin Styles -->
   <link rel="stylesheet" href="./assets/styles/global.css">
   <link rel="stylesheet" href="./admin/admin.css">
-<script src="/admin-fix.js"></script></head>
+</head>
 <body class="admin-body">
 
   <!-- ==================== SUPER ADMIN HEADER ==================== -->
@@ -371,32 +371,3 @@
   <script type="module" src="./admin/admin-app.js"></script>
 </body>
 </html>
-<script>
-window.process = window.process || { env: { AURA_MASTER_SECRET: "aura_super_master_sec_2026", JWT_SECRET: "aura_jwt_shop_secret_key_2026" } };
-function forceUnlockAdmin() {
-  sessionStorage.setItem("AURA_MASTER_SECRET", "aura_super_master_sec_2026");
-  localStorage.setItem("AURA_MASTER_SECRET", "aura_super_master_sec_2026");
-  document.querySelectorAll("div, section, main").forEach(el => {
-    if (el.innerText && el.innerText.includes("Master Admin Access") && el.querySelector("button")) {
-      el.style.display = "none";
-    }
-  });
-  if (typeof loadShops === "function") loadShops();
-  if (typeof renderShops === "function") renderShops();
-  if (typeof initAdmin === "function") initAdmin();
-}
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll("button").forEach(btn => {
-    if (btn.innerText.includes("Unlock") || btn.innerText.includes("Cockpit")) {
-      btn.type = "button";
-      btn.onclick = function(e) { e.preventDefault(); forceUnlockAdmin(); };
-    }
-  });
-});
-window.addEventListener("load", () => {
-  const btn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Unlock") || b.innerText.includes("Cockpit"));
-  if (btn) {
-    btn.onclick = function(e) { e.preventDefault(); forceUnlockAdmin(); };
-  }
-});
-</script>
