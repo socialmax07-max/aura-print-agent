@@ -1,0 +1,71 @@
+# ==============================================================================
+# AURA PRINT PRO — GIT IGNORE SPECIFICATION
+# Owner: Sabir Ansari
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. CREDENTIALS, SECRETS & ENVIRONMENT CONFIGURATION
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.pfx
+*.p12
+
+# Firebase Admin Service Account JSON files
+*serviceAccountKey*.json
+firebase-adminsdk*.json
+*credentials*.json
+
+# ------------------------------------------------------------------------------
+# 2. DEPENDENCIES & PACKAGE CACHES
+# ------------------------------------------------------------------------------
+node_modules/
+print-agent/node_modules/
+.pnpm-store/
+.yarn/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ------------------------------------------------------------------------------
+# 3. BUILD ARTIFACTS & SERVERLESS CACHE
+# ------------------------------------------------------------------------------
+.netlify/
+dist/
+build/
+out/
+.cache/
+
+# ------------------------------------------------------------------------------
+# 4. WINDOWS PRINT AGENT SPOOL & RUNTIME DATA
+# ------------------------------------------------------------------------------
+# Avoid committing downloaded customer PDF/image files to repository
+print-agent/temp/
+print-agent/spool/
+print-agent/downloads/
+print-agent/logs/
+print-agent/agent-config.json
+
+# ------------------------------------------------------------------------------
+# 5. OS & EDITOR SPECIFIC FILES
+# ------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+*~

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Print Pro — Smart Automated Cloud Printing for CSC & Cyber Cafes</title>
+  <meta name="description" content="India's leading self-service cloud printing SaaS for CSC Kendra, Cyber Cafes, and Xerox shops. Instant mobile upload, dynamic UPI billing, and automatic Windows printing.">
+  <meta name="keywords" content="AURA Print Pro, CSC Centre, Cyber Cafe, Xerox Shop, Cloud Printing India, Sabir Ansari">
+  <meta name="author" content="Sabir Ansari">
+  <link rel="icon" type="image./svg+xml" href="./assets/images/logo.svg">
+  <link rel="stylesheet" href="./assets/styles/global.css">
+  <style>
+    /* Page Specific Styles for Landing Portal */
+    .landing-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 4.5rem;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      list-style: none;
+    }
+    .hero-section {
+      padding: 4.5rem 1rem 3.5rem;
+      text-align: center;
+      background: linear-gradient(180deg, #ffffff 0%, var(--surface-bg) 100%);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary-50);
+      color: var(--primary-700);
+      border: 1px solid var(--primary-200);
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title {
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 900;
+      line-height: 1.15;
+      max-width: 820px;
+      margin: 0 auto 1.25rem;
+      color: var(--text-main);
+    }
+    .hero-title span {
+      background: linear-gradient(135deg, var(--primary-600) 0%, #0284c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+    .shop-finder-card {
+      max-width: 520px;
+      margin: 0 auto 1.5rem;
+      background: #ffffff;
+      border: 2px solid var(--primary-200);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 3.5rem 0;
+    }
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    .feature-icon-box {
+      width: 3rem;
+      height: 3rem;
+      border-radius: var(--radius-md);
+      background: var(--primary-50);
+      color: var(--primary-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid var(--primary-100);
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin: 2.5rem 0 3.5rem;
+    }
+    .plan-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .plan-card.popular {
+      border-color: var(--primary-600);
+      box-shadow: 0 0 0 2px var(--primary-600);
+    }
+    .plan-card.popular::before {
+      content: 'MOST POPULAR';
+      position: absolute;
+      top: -0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary-600);
+      color: #ffffff;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.05em;
+    }
+    .footer-main {
+      background: #ffffff;
+      border-top: 1px solid var(--border-light);
+      padding: 2.5rem 1rem;
+      margin-top: auto;
+      text-align: center;
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hero-section { padding: 2.5rem 1rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="landing-header">
+    <div class="container">
+      <nav class="nav-wrapper">
+        <a href="/" style="display: flex; align-items: center;">
+          <img src="./assets/images/logo.svg" alt="AURA Print Pro Logo" style="height: 42px; width: auto;">
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="#features" class="text-sm text-bold" style="color: var(--text-secondary);">Features</a></li>
+          <li><a href="#plans" class="text-sm text-bold" style="color: var(--text-secondary);">Subscription Tiers</a></li>
+          <li><a href="/passport.html" class="text-sm text-bold" style="color: var(--text-secondary);">Passport Studio</a></li>
+          <li><a href="/operator.html" class="btn btn-secondary btn-sm">Shopkeeper Login</a></li>
+          <li><a href="/admin.html" class="btn btn-outline btn-sm">Admin Portal</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section & Customer Quick Kiosk Finder -->
+  <main>
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-badge">
+          <span style="font-size: 1rem;">⚡</span> Commercial SaaS for Indian Print Shops & Cyber Cafes
+        </div>
+        <h1 class="hero-title">
+          Customer Phone Se Upload Karein, <span>Automatic Laptop Se Print Nikle</span>
+        </h1>
+        <p class="hero-subtitle">
+          WhatsApp par document mangne ki jhanjhat khatam. Customer shop ka QR scan karke PDF ya Photo upload karega, UPI ya cash choose karega, aur aapke printer se print seedhe print ho jayega.
+        </p>
+
+        <!-- Customer Shop Code Access Card -->
+        <div class="shop-finder-card">
+          <h2 style="font-size: 1.125rem; margin-bottom: 0.5rem; text-align: left;">Customer Print Portal (ग्राहक प्रिंट कियोस्क)</h2>
+          <p class="text-sm text-muted" style="text-align: left; margin-bottom: 1.25rem;">
+            Dukaan par laga <strong>Shop Code</strong> darj karein ya direct counter kiosk open karein:
+          </p>
+
+          <form id="kioskRedirectForm" onsubmit="handleKioskRedirect(event)">
+            <div style="display: flex; gap: 0.5rem;">
+              <input 
+                type="text" 
+                id="shopCodeInput" 
+                class="form-input text-mono" 
+                placeholder="e.g. delhi-cyber-hub ya 101" 
+                required 
+                autocomplete="off"
+                style="text-transform: lowercase; font-weight: 600;"
+              >
+              <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                Open Kiosk →
+              </button>
+            </div>
+            <div id="kioskErrorMsg" class="form-error hidden" style="text-align: left;"></div>
+          </form>
+
+          <div style="margin-top: 1rem; padding-top: 0.875rem; border-top: 1px dashed var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+            <span class="text-xs text-muted">Shop owner hain?</span>
+            <a href="/operator.html" class="text-xs text-bold">Operator Dashboard Kholein &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Core Modules -->
+    <section id="features" class="container">
+      <div style="text-align: center; max-width: 640px; margin: 3.5rem auto 1rem;">
+        <h2>Dukaan Chalane Ke Liye Banaya Gaya Complete Platform</h2>
+        <p class="text-sm text-muted" style="margin-top: 0.5rem;">
+          CSC centres, Cyber Cafes aur Court Xerox shops ke daily operations ko tez aur aasan banane ke liye engineered.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box">📱</div>
+          <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Zero-WhatsApp Mobile Kiosk</h3>
+          <p class="text-sm">
+            Customer phone se hi original PDF aur images upload karta hai. Real PDF.js canvas preview, exact page count, zoom aur crop support shamil hai.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🖨️</div>
+          <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Background Windows Print Agent</h3>
+          <p class="text-sm">
+            Shopkeeper ke Windows laptop par background tray me service run hoti hai. Order verify hote hi queue se document utha kar spooler par auto-print karta hai.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">💰</div>
+          <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Safe Pricing & Dynamic UPI</h3>
+          <p class="text-sm">
+            B&W single/duplex aur Colour rates ke exact mathematical formulas. Order-specific dynamic UPI QR generate hota hai, cash confirmation secure PIN se protected hai.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📸</div>
+          <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Passport Photo Studio</h3>
+          <p class="text-sm">
+            35x45 mm, 2x2 inch aur Stamp size presets. Smart multi-grid A4 aur 4x6 inch sheet layout generator jo instant photo sheet print karta hai.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🛡️</div>
+          <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Multi-Tenant & Security Isolation</h3>
+          <p class="text-sm">
+            Har shop ka apna unique ID aur private storage isolation. Ek dukan ka document dusri dukan ke operator ko kabhi visible nahi hota.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📊</div>
+          <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Daily Accounting & Reports</h3>
+          <p class="text-sm">
+            Din bhar me kitne Cash orders huye, kitne UPI orders huye aur kitne sheets print huye — daily cash register aur download hone wali GST CSV summary.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Subscription Plans Section -->
+    <section id="plans" style="background: #ffffff; border-top: 1px solid var(--border-light); padding: 3.5rem 1rem;">
+      <div class="container">
+        <div style="text-align: center; max-width: 640px; margin: 0 auto 2rem;">
+          <h2>SaaS Subscription Plans for Shopkeepers</h2>
+          <p class="text-sm text-muted" style="margin-top: 0.5rem;">
+            Sabir Ansari dwara managed monthly subscription plans. Har plan me software license, Windows Agent aur regular security updates shamil hain.
+          </p>
+        </div>
+
+        <div class="pricing-grid">
+          <!-- Starter -->
+          <div class="plan-card">
+            <div>
+              <span class="badge badge-neutral" style="margin-bottom: 0.75rem;">Starter</span>
+              <div style="display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.75rem; font-weight: 800;">₹299</span>
+                <span class="text-xs text-muted">/ month</span>
+              </div>
+              <p class="text-xs text-muted" style="margin-bottom: 1.25rem;">Chhote rural CSC kendra aur gaon ke kiosks ke liye.</p>
+              <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li>✔ 1 Windows Print Terminal</li>
+                <li>✔ 50 Orders Daily Limit</li>
+                <li>✔ UPI QR & Cash Counter Mode</li>
+                <li>✔ 7-day document purge</li>
+              </ul>
+            </div>
+            <a href="/operator.html" class="btn btn-secondary btn-sm btn-full">Choose Starter</a>
+          </div>
+
+          <!-- Growth -->
+          <div class="plan-card popular">
+            <div>
+              <span class="badge badge-primary" style="margin-bottom: 0.75rem;">Growth</span>
+              <div style="display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.75rem; font-weight: 800; color: var(--primary-700);">₹599</span>
+                <span class="text-xs text-muted">/ month</span>
+              </div>
+              <p class="text-xs text-muted" style="margin-bottom: 1.25rem;">Active cyber cafes aur photocopy dukano ke liye.</p>
+              <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li>✔ 2 Windows Print Terminals</li>
+                <li>✔ 150 Orders Daily Limit</li>
+                <li>✔ Passport Photo Studio Module</li>
+                <li>✔ Audio Order Chimes & Alerts</li>
+                <li>✔ 15-day document retention</li>
+              </ul>
+            </div>
+            <a href="/operator.html" class="btn btn-primary btn-sm btn-full">Get Growth Plan</a>
+          </div>
+
+          <!-- Professional -->
+          <div class="plan-card">
+            <div>
+              <span class="badge badge-info" style="margin-bottom: 0.75rem;">Professional</span>
+              <div style="display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.75rem; font-weight: 800;">₹999</span>
+                <span class="text-xs text-muted">/ month</span>
+              </div>
+              <p class="text-xs text-muted" style="margin-bottom: 1.25rem;">College aur court ke paas high-volume printing hubs ke liye.</p>
+              <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li>✔ 4 High-Speed Print Terminals</li>
+                <li>✔ 500 Orders Daily Limit</li>
+                <li>✔ Operator Cash PIN System</li>
+                <li>✔ Exportable CSV Accounting</li>
+                <li>✔ Printable QR Standee Generator</li>
+              </ul>
+            </div>
+            <a href="/operator.html" class="btn btn-secondary btn-sm btn-full">Choose Pro</a>
+          </div>
+
+          <!-- Business -->
+          <div class="plan-card">
+            <div>
+              <span class="badge badge-warning" style="margin-bottom: 0.75rem;">Business</span>
+              <div style="display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.75rem; font-weight: 800;">₹1,499</span>
+                <span class="text-xs text-muted">/ month</span>
+              </div>
+              <p class="text-xs text-muted" style="margin-bottom: 1.25rem;">Stationery aur multi-counter staff wale stores ke liye.</p>
+              <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li>✔ 8 Connected Terminals</li>
+                <li>✔ 1,500 Orders Daily Limit</li>
+                <li>✔ Multi-Operator Shift Logs</li>
+                <li>✔ Custom Kiosk Shop Branding</li>
+              </ul>
+            </div>
+            <a href="/operator.html" class="btn btn-secondary btn-sm btn-full">Choose Business</a>
+          </div>
+
+          <!-- Enterprise -->
+          <div class="plan-card">
+            <div>
+              <span class="badge badge-success" style="margin-bottom: 0.75rem;">Enterprise</span>
+              <div style="display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.75rem; font-weight: 800;">₹2,499</span>
+                <span class="text-xs text-muted">/ month</span>
+              </div>
+              <p class="text-xs text-muted" style="margin-bottom: 1.25rem;">Multi-branch printing franchises ke liye.</p>
+              <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li>✔ Unlimited Orders & Printers</li>
+                <li>✔ Multi-Branch Analytics</li>
+                <li>✔ Dedicated Sabir Ansari Support</li>
+                <li>✔ Custom API Webhooks</li>
+              </ul>
+            </div>
+            <a href="/operator.html" class="btn btn-secondary btn-sm btn-full">Contact Master Admin</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="footer-main">
+    <div class="container">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+        <img src="./assets/images/logo.svg" alt="AURA Print Pro" style="height: 32px; width: auto; opacity: 0.85;">
+        <p class="text-sm text-muted">
+          AURA Print Pro &copy; 2026. Designed, Owned & Engineered by <strong>Sabir Ansari</strong>.
+        </p>
+        <div style="display: flex; gap: 1.5rem; font-size: 0.8125rem;">
+          <a href="/kiosk.html?shop=demo">Sample Demo Kiosk</a>
+          <a href="/operator.html">Operator Dashboard</a>
+          <a href="/passport.html">Passport Studio</a>
+          <a href="/admin.html">Super Admin Cockpit</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shop Redirect Script -->
+  <script type="module">
+    import { isValidShopId } from '/src/shared/validators.js';
+
+    window.handleKioskRedirect = function(event) {
+      event.preventDefault();
+      const input = document.getElementById('shopCodeInput');
+      const errorDiv = document.getElementById('kioskErrorMsg');
+      const val = (input.value || '').trim().toLowerCase();
+
+      errorDiv.classList.add('hidden');
+      errorDiv.textContent = '';
+
+      if (!val) {
+        errorDiv.textContent = 'Kripya Shop ID ya Code darj karein.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      // Check format using shared validator
+      if (!isValidShopId(val) && !/^\d{2,6}$/.test(val)) {
+        errorDiv.textContent = 'Invalid format. Shop ID me 3-32 characters (a-z, 0-9, hyphen) hone chahiye.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      // Clean redirect to kiosk with shop query parameter
+      window.location.href = `/kiosk.html?shop=${encodeURIComponent(val)}`;
+    };
+  </script>
+</body>
+</html>

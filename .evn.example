@@ -1,0 +1,56 @@
+# ==============================================================================
+# AURA PRINT PRO — ENVIRONMENT CONFIGURATION TEMPLATE
+# Owner: Sabir Ansari
+#
+# IMPORTANT:
+# 1. Copy this file to `.env` for local testing with `netlify dev`.
+# 2. Add these variables to your Netlify Site Settings:
+#    Site configuration > Environment variables.
+# 3. NEVER commit `.env` or raw service account JSON files to Git.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. FIREBASE ADMIN SDK (SERVER-SIDE ONLY - NETLIFY FUNCTIONS)
+# ------------------------------------------------------------------------------
+# Generated from: Firebase Console > Project Settings > Service Accounts > Generate new private key
+FIREBASE_PROJECT_ID="aura-print-pro"
+FIREBASE_CLIENT_EMAIL="firebase-adminsdk-xxxxx@aura-print-pro.iam.gserviceaccount.com"
+
+# In Netlify dashboard or .env, format multi-line private key with escaped newlines:
+# Example: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgk...=\n-----END PRIVATE KEY-----\n"
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
+
+# Private Cloud Storage bucket for customer uploads (no public read access)
+FIREBASE_STORAGE_BUCKET="aura-print-pro.firebasestorage.app"
+
+# ------------------------------------------------------------------------------
+# 2. SUPER ADMIN AUTHENTICATION (SABIR ANSARI MASTER ACCESS)
+# ------------------------------------------------------------------------------
+# Master secret passphrase used to issue and sign admin tokens
+ADMIN_MASTER_SECRET="change-this-to-a-very-strong-cryptographic-secret-key-32-chars"
+# Sabir Ansari's primary master dashboard email
+ADMIN_MASTER_EMAIL="sabiransari@auraprintpro.in"
+
+# ------------------------------------------------------------------------------
+# 3. WINDOWS PRINT AGENT SECURITY
+# ------------------------------------------------------------------------------
+# Secret key used by Netlify Functions to sign and verify shop print agent bearer tokens
+AGENT_AUTH_SECRET="change-this-to-another-strong-secret-for-windows-agents"
+
+# Token time-to-live for signed PDF downloads (in seconds; default 300 = 5 minutes)
+SIGNED_URL_TTL_SECONDS="300"
+
+# ------------------------------------------------------------------------------
+# 4. PUBLIC CLIENT CONFIGURATION (EMBEDDED IN FRONTEND)
+# ------------------------------------------------------------------------------
+# Public Firebase Web App credentials (safe to be used in client SDKs)
+# Obtained from: Firebase Console > Project Settings > General > Your apps (Web)
+PUBLIC_FIREBASE_API_KEY="AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+PUBLIC_FIREBASE_AUTH_DOMAIN="aura-print-pro.firebaseapp.com"
+PUBLIC_FIREBASE_PROJECT_ID="aura-print-pro"
+PUBLIC_FIREBASE_STORAGE_BUCKET="aura-print-pro.firebasestorage.app"
+PUBLIC_FIREBASE_MESSAGING_SENDER_ID="123456789012"
+PUBLIC_FIREBASE_APP_ID="1:123456789012:web:abcdef1234567890"
+
+# Canonical Production URL (used for QR code standee links and webhooks)
+PUBLIC_APP_URL="https://auraprintpro.in"

@@ -1,0 +1,16 @@
+# ==============================================================================
+# AURA PRINT PRO — ENVIRONMENT CONFIGURATION
+# ==============================================================================
+
+# 1. Platform Master Security Secret (Admin Cockpit unlock key)
+AURA_MASTER_SECRET=aura_super_master_sec_2026
+
+# 2. JWT Signing Secret (Shopkeeper session authentication)
+JWT_SECRET=aura_jwt_shop_secret_key_2026
+
+# 3. Google Firebase Project Configuration
+FIREBASE_PROJECT_ID=aura-print-pro
+FIREBASE_STORAGE_BUCKET=aura-print-pro.firebasestorage.app
+
+# 4. Netlify Local Functions Port
+PORT=8888

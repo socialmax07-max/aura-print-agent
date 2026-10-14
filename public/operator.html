@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Print Pro — Shopkeeper Operator Command Dashboard</title>
+  <meta name="description" content="Shopkeeper Operator Dashboard for AURA Print Pro. Live incoming order queue, UPI verification, cash counter confirmation, print controls, and daily register.">
+  <meta name="author" content="Sabir Ansari">
+  <link rel="icon" type="image/svg+xml" href="./assets/images/logo.svg">
+
+  <!-- Design System & Operator Stylesheet -->
+  <link rel="stylesheet" href="./assets/styles/global.css">
+  <link rel="stylesheet" href="./operator/operator.css">
+
+  <!-- PDF.js for operator document verification -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body class="operator-body">
+
+  <!-- ==================== TOP NAVIGATION & TELEMETRY ==================== -->
+  <header class="operator-header">
+    <div class="operator-container header-layout">
+      
+      <!-- Brand & Shop Identity -->
+      <div class="header-brand">
+        <a href="/" title="AURA Print Pro">
+          <img src="./assets/images/logo.svg" alt="AURA Print Pro" class="operator-logo">
+        </a>
+        <div class="shop-status-block">
+          <div class="shop-title-row">
+            <h1 id="shopNameTitle" class="shop-name">Loading Shop...</h1>
+            <span id="subscriptionTierBadge" class="badge badge-primary">GROWTH</span>
+          </div>
+          <span class="shop-slug-text">
+            Shop ID: <strong id="shopSlugText" class="text-mono">---</strong>
+            &bull; <a href="#" id="viewKioskLink" target="_blank" class="kiosk-quick-link">Open Kiosk URL ↗</a>
+          </span>
+        </div>
+      </div>
+
+      <!-- Real-Time Hardware & Agent Telemetry Status -->
+      <div class="telemetry-bar">
+        <!-- Windows Print Agent Heartbeat -->
+        <div id="agentStatusCard" class="telemetry-item status-offline" title="Windows Agent Status">
+          <span class="telemetry-dot"></span>
+          <div class="telemetry-details">
+            <span class="telemetry-label">Print Agent</span>
+            <span id="agentStatusText" class="telemetry-val">Offline</span>
+          </div>
+        </div>
+
+        <!-- Selected Printer Hardware -->
+        <div id="printerStatusCard" class="telemetry-item status-neutral">
+          <span class="telemetry-icon">🖨️</span>
+          <div class="telemetry-details">
+            <span class="telemetry-label">Printer</span>
+            <span id="printerNameText" class="telemetry-val text-truncate">Default Printer</span>
+          </div>
+        </div>
+
+        <!-- Audio Alert Chime Toggle -->
+        <button type="button" id="btnAudioToggle" class="btn btn-secondary btn-sm audio-toggle-btn" title="Toggle incoming order sound alert">
+          <span id="audioIcon">🔔</span> Sound ON
+        </button>
+
+        <!-- Quick Access to Passport Studio -->
+        <a href="/passport.html" class="btn btn-outline btn-sm">
+          📸 Photo Studio
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <main class="operator-container operator-main">
+
+    <!-- Global Message Banner -->
+    <div id="operatorBannerAlert" class="alert alert-info hidden" role="alert">
+      <span class="alert-icon">ℹ️</span>
+      <div id="operatorBannerText" class="alert-message"></div>
+    </div>
+
+    <!-- ==================== DAILY SUMMARY METRICS ==================== -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Active Queue (कतार)</span>
+          <span class="metric-icon">⏳</span>
+        </div>
+        <div class="metric-value-row">
+          <span id="metricActiveQueueCount" class="metric-num">0</span>
+          <span class="metric-sub">Orders Waiting</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Today's Total (कुल बिक्री)</span>
+          <span class="metric-icon">💰</span>
+        </div>
+        <div class="metric-value-row">
+          <span id="metricTodayTotalRevenue" class="metric-num">₹0.00</span>
+          <span id="metricTodayOrderCount" class="metric-sub">0 Completed</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">UPI Received (ऑनलाइन)</span>
+          <span class="metric-icon">📱</span>
+        </div>
+        <div class="metric-value-row">
+          <span id="metricTodayUpiRevenue" class="metric-num text-success">₹0.00</span>
+          <span id="metricTodayUpiCount" class="metric-sub">0 Transactions</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Cash Counter (नकद)</span>
+          <span class="metric-icon">💵</span>
+        </div>
+        <div class="metric-value-row">
+          <span id="metricTodayCashRevenue" class="metric-num text-primary">₹0.00</span>
+          <span id="metricTodayCashCount" class="metric-sub">0 Transactions</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PRIMARY OPERATOR TABS ==================== -->
+    <div class="operator-nav-tabs">
+      <button type="button" id="tabBtnQueue" class="operator-tab active" onclick="switchOperatorTab('QUEUE')">
+        📥 Live Order & Print Queue <span id="queueBadgeCount" class="tab-badge">0</span>
+      </button>
+      <button type="button" id="tabBtnHistory" class="operator-tab" onclick="switchOperatorTab('HISTORY')">
+        📑 Daily Register & Order History
+      </button>
+      <button type="button" id="tabBtnSettings" class="operator-tab" onclick="switchOperatorTab('SETTINGS')">
+        ⚙️ Rates & Shop Configuration
+      </button>
+    </div>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- TAB 1: LIVE INCOMING QUEUE & PRINT CONTROLS                        -->
+    <!-- ------------------------------------------------------------------ -->
+    <section id="tabContentQueue" class="tab-pane active-pane">
+      
+      <div class="queue-split-grid">
+        
+        <!-- Column A: Verification Needed (Payment Review & Cash Pending) -->
+        <div class="queue-column">
+          <div class="column-header-strip">
+            <h3>1. Payment Verification Needed (सत्यापन आवश्यक)</h3>
+            <span id="pendingCountBadge" class="badge badge-warning">0 Pending</span>
+          </div>
+
+          <div id="pendingVerificationList" class="order-cards-stack">
+            <!-- Dynamic pending verification order cards injected here -->
+            <div class="empty-state">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+              <h4>No Pending Verifications</h4>
+              <p class="text-xs text-muted">Customer orders awaiting UPI check or cash receipt will appear here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column B: Print Queue & Dispatch Spooler -->
+        <div class="queue-column">
+          <div class="column-header-strip">
+            <h3>2. Ready to Print (प्रिंटर कतार)</h3>
+            <span id="printQueueCountBadge" class="badge badge-primary">0 Ready</span>
+          </div>
+
+          <div id="printQueueList" class="order-cards-stack">
+            <!-- Dynamic verified printable order cards injected here -->
+            <div class="empty-state">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              <h4>Print Spooler Idle</h4>
+              <p class="text-xs text-muted">Confirmed orders ready for background or manual print will appear here.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- TAB 2: ORDER HISTORY & DAILY ACCOUNTING REGISTER                   -->
+    <!-- ------------------------------------------------------------------ -->
+    <section id="tabContentHistory" class="tab-pane hidden">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Daily Sales & Print Register (दैनिक खाता रजिस्टर)</h2>
+            <p class="text-sm text-muted">Search completed transactions and export records for accounting/GST.</p>
+          </div>
+          <div class="history-actions">
+            <button type="button" id="btnExportCsv" class="btn btn-secondary btn-sm">
+              📥 Export CSV Register
+            </button>
+            <button type="button" id="btnRefreshHistory" class="btn btn-outline btn-sm">
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Filter Controls -->
+          <div class="history-filters">
+            <div class="search-box">
+              <input 
+                type="text" 
+                id="searchOrderInput" 
+                class="form-input" 
+                placeholder="Search by Order ID (e.g. ORD-9H4K) or Document Name..."
+              >
+            </div>
+            <div class="filter-controls">
+              <select id="filterPaymentMode" class="form-select">
+                <option value="ALL">All Payment Types</option>
+                <option value="UPI">UPI Payments Only</option>
+                <option value="CASH">Cash Counter Only</option>
+              </select>
+              <select id="filterStatus" class="form-select">
+                <option value="ALL">All Statuses</option>
+                <option value="PRINTED">Printed & Done</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="PAYMENT_REJECTED">Rejected</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- History Table -->
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Time (IST)</th>
+                  <th>Document</th>
+                  <th>Pages / Sheets</th>
+                  <th>Mode</th>
+                  <th>Payment</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <tr>
+                  <td colspan="9" class="text-center text-muted" style="padding: 2.5rem 1rem;">
+                    Loading order history records...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination-bar">
+            <span id="historyRecordCountText" class="text-xs text-muted">Showing 0 of 0 orders</span>
+            <div class="pagination-buttons">
+              <button type="button" id="btnPrevHistoryPage" class="btn btn-outline btn-sm" disabled>Previous</button>
+              <span id="historyPageNumText" class="text-xs text-bold">Page 1</span>
+              <button type="button" id="btnNextHistoryPage" class="btn btn-outline btn-sm" disabled>Next</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- TAB 3: SHOP SETTINGS & RATE CARD                                   -->
+    <!-- ------------------------------------------------------------------ -->
+    <section id="tabContentSettings" class="tab-pane hidden">
+      <div class="settings-grid">
+
+        <!-- Card A: Rate Card Configuration -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2>Print Rate Card (प्रिंट मूल्य सूची)</h2>
+              <p class="text-sm text-muted">Configure customer billing rates per page and physical duplex sheet.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="shopRatesForm" onsubmit="handleSaveRates(event)">
+              
+              <div class="rate-inputs-grid">
+                <div class="form-group">
+                  <label class="form-label" for="rateBwSingle">B&W Single Sided (₹ / page)</label>
+                  <input type="number" id="rateBwSingle" class="form-input text-mono" step="0.5" min="0.5" value="2.0" required>
+                  <span class="form-hint">Default ₹2.00</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="rateBwDuplex">B&W Duplex (₹ / sheet)</label>
+                  <input type="number" id="rateBwDuplex" class="form-input text-mono" step="0.5" min="0.5" value="3.0" required>
+                  <span class="form-hint">Default ₹3.00 ( दोनों तरफ )</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="rateColorSingle">Colour Single Sided (₹ / page)</label>
+                  <input type="number" id="rateColorSingle" class="form-input text-mono" step="1" min="1" value="10.0" required>
+                  <span class="form-hint">Default ₹10.00</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="rateColorDuplex">Colour Duplex (₹ / sheet)</label>
+                  <input type="number" id="rateColorDuplex" class="form-input text-mono" step="1" min="1" value="16.0" required>
+                  <span class="form-hint">Default ₹16.00</span>
+                </div>
+              </div>
+
+              <div class="form-divider"></div>
+
+              <div class="rate-inputs-grid">
+                <div class="form-group">
+                  <label class="form-label" for="ratePassport4x6">Passport Photo Sheet (4x6")</label>
+                  <input type="number" id="ratePassport4x6" class="form-input text-mono" step="1" min="5" value="30.0" required>
+                  <span class="form-hint">Default ₹30.00</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="ratePassportA4">Passport Photo Sheet (A4)</label>
+                  <input type="number" id="ratePassportA4" class="form-input text-mono" step="5" min="10" value="50.0" required>
+                  <span class="form-hint">Default ₹50.00</span>
+                </div>
+              </div>
+
+              <div class="card-footer" style="padding-left: 0; padding-right: 0; background: transparent;">
+                <button type="submit" id="btnSaveRates" class="btn btn-primary">
+                  💾 Update Rate Card
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Card B: UPI Configuration & Operator Cash PIN Security -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2>UPI VPA & Cash PIN Security</h2>
+              <p class="text-sm text-muted">Payouts go directly to your bank. Cash confirmations require PIN authorization.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            
+            <!-- UPI Settings Form -->
+            <form id="shopUpiForm" onsubmit="handleSaveUpi(event)" style="margin-bottom: 2rem;">
+              <div class="form-group">
+                <label class="form-label" for="settingsUpiId">Shopkeeper UPI ID / VPA (पेमेंट खाता)</label>
+                <input 
+                  type="text" 
+                  id="settingsUpiId" 
+                  class="form-input text-mono" 
+                  placeholder="e.g. sabirprint@okaxis" 
+                  required
+                >
+                <p class="form-hint">Customer QR codes will direct exact amounts to this UPI address.</p>
+              </div>
+              <button type="submit" id="btnSaveUpi" class="btn btn-primary btn-sm">
+                Save UPI ID
+              </button>
+            </form>
+
+            <div class="form-divider"></div>
+
+            <!-- Operator Cash Confirmation PIN Setup -->
+            <form id="shopPinForm" onsubmit="handleUpdateCashPin(event)">
+              <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem;">Operator Cash Security PIN</h3>
+              <p class="text-xs text-muted" style="margin-bottom: 1rem;">
+                Protects the counter from unauthorized cash marks. Salted hash stored on server.
+              </p>
+
+              <div class="form-group">
+                <label class="form-label" for="newCashPin">Set New 4-6 Digit Cash PIN</label>
+                <input 
+                  type="password" 
+                  id="newCashPin" 
+                  class="form-input text-mono" 
+                  maxlength="6" 
+                  pattern="[0-9]{4,6}" 
+                  placeholder="••••" 
+                  required
+                >
+              </div>
+
+              <button type="submit" id="btnSavePin" class="btn btn-secondary btn-sm">
+                🔒 Update Operator PIN
+              </button>
+            </form>
+
+            <div class="form-divider"></div>
+
+            <!-- Windows Print Agent Token Box -->
+            <div>
+              <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem;">Windows Print Agent Connection</h3>
+              <p class="text-xs text-muted" style="margin-bottom: 0.75rem;">
+                Secret token used by your Windows laptop background print service.
+              </p>
+              <div class="agent-token-box">
+                <input type="password" id="displayAgentToken" class="form-input text-mono" value="••••••••••••••••" readonly>
+                <button type="button" class="btn btn-outline btn-sm" onclick="toggleTokenVisibility()">Show</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="copyAgentToken()">Copy Token</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. CASH CONFIRMATION OPERATOR PIN MODAL -->
+  <div id="modalCashPin" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="cashModalTitle">
+    <div class="modal-dialog">
+      <div class="card-header">
+        <h3 id="cashModalTitle">Confirm Cash Receipt (नकद पुष्टि)</h3>
+        <button type="button" class="modal-close-btn" onclick="closeCashPinModal()">&times;</button>
+      </div>
+      <div class="card-body">
+        <div class="modal-order-summary">
+          <div>
+            <span class="text-xs text-muted">Order ID:</span>
+            <strong id="modalCashOrderId" class="text-mono">ORD-XXXXXX</strong>
+          </div>
+          <div>
+            <span class="text-xs text-muted">Cash Due:</span>
+            <strong id="modalCashOrderAmount" class="text-primary text-bold">₹0.00</strong>
+          </div>
+        </div>
+
+        <p class="text-xs text-muted" style="margin-bottom: 1rem;">
+          Enter your 4-6 digit operator PIN to verify that cash was physically received at the counter:
+        </p>
+
+        <form id="cashVerificationForm" onsubmit="submitCashConfirmation(event)">
+          <div class="form-group">
+            <input 
+              type="password" 
+              id="inputOperatorPin" 
+              class="form-input text-mono text-center pin-field" 
+              maxlength="6" 
+              pattern="[0-9]{4,6}" 
+              placeholder="••••" 
+              required 
+              autofocus
+            >
+            <div id="cashPinErrorMsg" class="form-error hidden text-center"></div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" onclick="closeCashPinModal()">Cancel</button>
+            <button type="submit" id="btnSubmitCashPin" class="btn btn-success">
+              ✔ Confirm Cash & Queue Print
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. DOCUMENT PREVIEW & DETAIL MODAL -->
+  <div id="modalDocPreview" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="previewModalTitle">
+    <div class="modal-dialog modal-lg">
+      <div class="card-header">
+        <div>
+          <h3 id="previewModalTitle">Order Verification & Document Inspection</h3>
+          <span id="previewModalOrderId" class="text-xs text-mono text-muted">ORD-XXXXXX</span>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="closeDocPreviewModal()">&times;</button>
+      </div>
+      <div class="card-body modal-preview-body">
+        
+        <!-- Left: Canvas Viewport -->
+        <div class="modal-canvas-column">
+          <div class="modal-preview-viewport">
+            <canvas id="operatorPreviewCanvas"></canvas>
+            <div id="operatorPreviewSpinner" class="spinner hidden"></div>
+          </div>
+          <div class="modal-preview-nav">
+            <button type="button" id="btnModalPrevPage" class="btn btn-outline btn-sm">◀ Prev</button>
+            <span id="modalPageCounter" class="text-xs text-mono">Page 1 / 1</span>
+            <button type="button" id="btnModalNextPage" class="btn btn-outline btn-sm">Next ▶</button>
+          </div>
+        </div>
+
+        <!-- Right: Order Specifications Snapshot -->
+        <div class="modal-specs-column">
+          <h4 style="margin-bottom: 0.5rem;">Print Settings Snapshot</h4>
+          <div class="specs-table">
+            <div class="spec-row">
+              <span>File Name:</span>
+              <strong id="specFileName" class="text-truncate">doc.pdf</strong>
+            </div>
+            <div class="spec-row">
+              <span>Pages to Print:</span>
+              <strong id="specPageRange" class="text-mono">1-3</strong>
+            </div>
+            <div class="spec-row">
+              <span>Color Mode:</span>
+              <strong id="specColorMode">B&W</strong>
+            </div>
+            <div class="spec-row">
+              <span>Sides:</span>
+              <strong id="specDuplex">Duplex (Both sides)</strong>
+            </div>
+            <div class="spec-row">
+              <span>Copies:</span>
+              <strong id="specCopies" class="text-mono">1</strong>
+            </div>
+            <div class="spec-row">
+              <span>Expected Sheets:</span>
+              <strong id="specSheets" class="text-mono">2 physical sheets</strong>
+            </div>
+            <div class="spec-row">
+              <span>Paper Size:</span>
+              <strong id="specPaper">A4</strong>
+            </div>
+            <div class="spec-row total-highlight">
+              <span>Validated Total:</span>
+              <strong id="specTotalAmount">₹6.00</strong>
+            </div>
+          </div>
+
+          <div class="modal-direct-actions">
+            <button type="button" id="btnModalTriggerPrint" class="btn btn-primary btn-full">
+              🖨️ Send Job to Windows Agent
+            </button>
+            <button type="button" id="btnModalDownloadDoc" class="btn btn-secondary btn-sm btn-full">
+              📥 Download Document (Signed URL)
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Element for Incoming Order Sound Chime -->
+  <audio id="audioIncomingOrder" preload="auto">
+    <source src="./assets/audio/alert.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Modular Operator Application Engine -->
+  <script type="module" src="./operator/operator-app.js"></script>
+</body>
+</html>

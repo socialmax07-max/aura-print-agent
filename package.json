@@ -1,0 +1,43 @@
+{
+  "name": "aura-print-pro",
+  "version": "1.0.0",
+  "description": "Cloud-managed automated printing & kiosk platform for CSC centres, cyber cafes and print shops across India.",
+  "author": "Sabir Ansari",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "netlify/functions/create-order.js",
+  "scripts": {
+    "test": "node tests/pricing-engine.test.js && node tests/validators.test.js",
+    "test:pricing": "node tests/pricing-engine.test.js",
+    "test:validators": "node tests/validators.test.js",
+    "lint": "echo \"Checking code syntax...\" && node -c src/shared/*.js",
+    "serve": "npx serve public -l 3000",
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "bcryptjs": "^2.4.3",
+    "pdf-lib": "^1.17.9"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "netlify-cli": "^17.37.2",
+    "serve": "^14.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sabiransari/aura-print-pro.git"
+  },
+  "keywords": [
+    "printing",
+    "kiosk",
+    "csc-centre",
+    "cyber-cafe",
+    "cloud-print",
+    "saas",
+    "india"
+  ]
+}

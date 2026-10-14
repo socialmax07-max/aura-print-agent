@@ -1,0 +1,680 @@
+/* ==============================================================================
+   AURA PRINT PRO — CUSTOMER KIOSK MOBILE-FIRST STYLESHEET
+   Owner: Sabir Ansari
+   Interface: Customer Mobile / Touch Screen Counter Kiosk
+   ============================================================================== */
+
+/* ------------------------------------------------------------------------------
+   1. BASE LAYOUT & WRAPPER CONTAINERS
+   ------------------------------------------------------------------------------ */
+.kiosk-body {
+  background-color: #f1f5f9;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-main);
+}
+
+.kiosk-container {
+  width: 100%;
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.kiosk-main {
+  flex: 1;
+  padding-top: 0.5rem;
+  padding-bottom: 2rem;
+}
+
+/* ------------------------------------------------------------------------------
+   2. HEADER & SHOP BRAND IDENTITY
+   ------------------------------------------------------------------------------ */
+.kiosk-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.shop-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kiosk-logo {
+  height: 38px;
+  width: auto;
+}
+
+.shop-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.shop-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background-color: var(--success-solid);
+  display: inline-block;
+  box-shadow: 0 0 0 2px var(--success-border);
+}
+
+/* ------------------------------------------------------------------------------
+   3. 3-STEP PROGRESS STEPPER
+   ------------------------------------------------------------------------------ */
+.stepper-section {
+  padding-top: 1.25rem;
+  padding-bottom: 0.75rem;
+}
+
+.kiosk-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: opacity var(--transition-fast);
+}
+
+/* ------------------------------------------------------------------------------
+   4. STEP 1: DROPZONE & UPLOAD STATES
+   ------------------------------------------------------------------------------ */
+.upload-dropzone {
+  border: 2px dashed var(--primary-300);
+  background-color: var(--primary-50);
+  border-radius: var(--radius-md);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone:focus-visible {
+  border-color: var(--primary-600);
+  background-color: #ebf5ff;
+}
+
+.upload-dropzone.drag-active {
+  border-color: var(--primary-600);
+  background-color: #dbeafe;
+  transform: scale(0.99);
+}
+
+.hidden-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.dropzone-content {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.upload-icon-circle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-full);
+  background-color: #ffffff;
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 0.25rem;
+}
+
+.dropzone-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.dropzone-sub {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.format-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.processing-box {
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------------------------
+   5. STEP 2: PREVIEW COLUMN & CANVAS CONTROLS
+   ------------------------------------------------------------------------------ */
+.preview-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .preview-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+.preview-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--surface-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.65rem;
+}
+
+.toolbar-nav, .toolbar-zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.preview-viewport {
+  position: relative;
+  background-color: #334155;
+  border-radius: var(--radius-md);
+  min-height: 380px;
+  max-height: 520px;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 1px solid #1e293b;
+}
+
+.preview-canvas {
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  background: #ffffff;
+  border-radius: 2px;
+}
+
+.image-controls-overlay {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  z-index: 10;
+}
+
+.file-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+/* ------------------------------------------------------------------------------
+   6. STEP 2: PRINT CONFIGURATION FORMS & TILES
+   ------------------------------------------------------------------------------ */
+.settings-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  background-color: var(--surface-subtle);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-medium);
+}
+
+.radio-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+  color: var(--text-secondary);
+}
+
+.radio-toggle-btn input {
+  display: none;
+}
+
+.radio-toggle-btn:has(input:checked) {
+  background-color: #ffffff;
+  color: var(--primary-700);
+  box-shadow: var(--shadow-sm);
+}
+
+.custom-range-box {
+  margin-top: 0.5rem;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.option-tile {
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 0.75rem;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: all var(--transition-fast);
+  position: relative;
+  display: block;
+}
+
+.option-tile input {
+  position: absolute;
+  opacity: 0;
+}
+
+.option-tile:hover {
+  border-color: var(--primary-300);
+}
+
+.option-tile:has(input:checked) {
+  border-color: var(--primary-600);
+  background-color: var(--primary-50);
+}
+
+.tile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tile-icon {
+  font-size: 1.25rem;
+}
+
+.tile-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.tile-sub {
+  font-size: 0.75rem;
+}
+
+.stepper-input {
+  display: flex;
+  align-items: center;
+  max-width: 180px;
+}
+
+.stepper-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background-color: var(--surface-subtle);
+  border: 1px solid var(--border-medium);
+  cursor: pointer;
+  color: var(--text-main);
+  user-select: none;
+  transition: background-color var(--transition-fast);
+}
+
+.stepper-btn:hover {
+  background-color: var(--surface-hover);
+}
+
+.stepper-btn:first-child {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.stepper-btn:last-child {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.stepper-field {
+  width: 3.5rem;
+  height: 2.75rem;
+  text-align: center;
+  border-top: 1px solid var(--border-medium);
+  border-bottom: 1px solid var(--border-medium);
+  border-left: none;
+  border-right: none;
+  font-size: 1.125rem;
+  font-weight: 700;
+  background-color: #ffffff;
+}
+
+/* ------------------------------------------------------------------------------
+   7. LIVE QUOTE BREAKDOWN CARD
+   ------------------------------------------------------------------------------ */
+.quote-summary-card {
+  background: linear-gradient(180deg, #ffffff 0%, var(--surface-subtle) 100%);
+  border: 2px solid var(--primary-200);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.quote-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px dashed var(--border-medium);
+  padding-bottom: 0.5rem;
+}
+
+.quote-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.quote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.quote-divider {
+  height: 1px;
+  background-color: var(--border-medium);
+  margin: 0.5rem 0;
+}
+
+.quote-total {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.total-price {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--primary-700);
+}
+
+.step-actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .step-actions {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* ------------------------------------------------------------------------------
+   8. STEP 3: PAYMENT INTERFACE & QR LAYOUT
+   ------------------------------------------------------------------------------ */
+.order-id-banner {
+  background-color: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.order-id-code {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary-800);
+  letter-spacing: 0.05em;
+}
+
+.order-id-amount {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--primary-800);
+}
+
+.payment-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.payment-tab {
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-light);
+  background-color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.payment-tab:hover {
+  border-color: var(--primary-300);
+}
+
+.payment-tab.active {
+  border-color: var(--primary-600);
+  background-color: var(--primary-50);
+  color: var(--primary-800);
+}
+
+.payment-tab-content {
+  padding: 0.5rem 0;
+}
+
+.upi-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-wrapper {
+  width: 260px;
+  height: 260px;
+  background: #ffffff;
+  border: 2px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1.25rem;
+}
+
+.upi-qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.upi-vpa-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--surface-subtle);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.upi-mobile-intent {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 1.5rem;
+}
+
+.paid-action-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.cash-box {
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cash-icon-circle {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--radius-full);
+  background-color: var(--warning-bg);
+  border: 2px solid var(--warning-border);
+  font-size: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+/* ------------------------------------------------------------------------------
+   9. REAL-TIME TRACKER CARD (POST SUBMISSION)
+   ------------------------------------------------------------------------------ */
+.status-tracker-card {
+  margin-top: 1.5rem;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.tracker-header {
+  padding: 0.75rem 1rem;
+  background-color: var(--surface-subtle);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tracker-body {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.tracker-icon-pulsing {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  display: inline-block;
+  animation: pulse-scale 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-scale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.tracker-footer {
+  padding: 0.75rem 1rem;
+  background-color: var(--surface-subtle);
+  border-top: 1px solid var(--border-light);
+  text-align: center;
+}
+
+.kiosk-footer {
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border-light);
+  background-color: #ffffff;
+  margin-top: auto;
+}

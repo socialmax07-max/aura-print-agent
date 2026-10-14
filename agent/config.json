@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AuraPrintProAgentConfig",
+  "description": "Windows Print Agent daemon configuration for AURA Print Pro counter automation",
+
+  "server": {
+    "apiBaseUrl": "https://auraprintpro.netlify.app/api",
+    "pollEndpoint": "/agent-poll",
+    "pollIntervalMs": 3000,
+    "heartbeatIntervalMs": 15000,
+    "requestTimeoutMs": 10000
+  },
+
+  "auth": {
+    "shopId": "demo",
+    "agentToken": "demo_agent_secret_token_1234567890abcdef"
+  },
+
+  "printers": {
+    "defaultPrinter": "",
+    "colorPrinter": "",
+    "photoPrinter": "",
+    "autoRouteByColor": true,
+    "fallbackToDefault": true,
+    "paperHandling": {
+      "defaultPaperSize": "A4",
+      "defaultTray": "Auto",
+      "fitToPage": true,
+      "centerOnPage": true
+    }
+  },
+
+  "spooler": {
+    "engine": "sumatra",
+    "sumatraExecutablePath": "C:\\Program Files\\SumatraPDF\\SumatraPDF.exe",
+    "tempDirectory": "C:\\AuraPrintPro\\temp",
+    "cleanTempAfterPrint": true,
+    "maxRetries": 3,
+    "retryDelayMs": 2000,
+    "spoolTimeoutMs": 60000
+  },
+
+  "logging": {
+    "level": "info",
+    "logToConsole": true,
+    "logToFile": true,
+    "logDirectory": "C:\\AuraPrintPro\\logs",
+    "logFileName": "agent.log",
+    "maxLogSizeBytes": 10485760,
+    "maxBackupFiles": 5
+  },
+
+  "notifications": {
+    "enableWindowsToast": true,
+    "soundAlertOnJobReceived": true,
+    "soundAlertOnJobFailed": true
+  }
+}

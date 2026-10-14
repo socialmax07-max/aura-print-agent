@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Print Pro — Passport Photo Studio (पासपोर्ट फोटो स्टूडियो)</title>
+  <meta name="description" content="Professional Passport Photo Studio for Indian CSC Kendra and Cyber Cafes. 35x45mm, 2x2 inch, Stamp size presets, multi-photo grid layouter, and high-DPI sheet printing.">
+  <meta name="author" content="Sabir Ansari">
+  <link rel="icon" type="image/svg+xml" href="./assets/images/logo.svg">
+  
+  <!-- Global & Studio Design System -->
+  <link rel="stylesheet" href="./assets/styles/global.css">
+  <link rel="stylesheet" href="./passport/passport.css">
+
+  <!-- PDF-Lib for browser-side print-ready vector sheet generation -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.9/dist/pdf-lib.min.js"></script>
+</head>
+<body class="studio-body">
+
+  <!-- ==================== STUDIO HEADER ==================== -->
+  <header class="studio-header">
+    <div class="studio-container header-inner">
+      <div class="brand-left">
+        <a href="/" title="Back to Home" style="display: flex; align-items: center; gap: 0.75rem;">
+          <img src="./assets/images/logo.svg" alt="AURA Print Pro Logo" style="height: 36px; width: auto;">
+        </a>
+        <div class="studio-tag">
+          <span class="badge badge-primary">Photo Studio</span>
+          <span class="text-xs text-muted">Biometric Print Maker</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <span id="activeShopBadge" class="shop-badge-indicator">
+          Shop: <strong id="studioShopCode" class="text-mono">General</strong>
+        </span>
+        <a href="/operator.html" class="btn btn-secondary btn-sm">Operator Dashboard</a>
+        <a href="/" class="btn btn-outline btn-sm">Exit</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== STUDIO MAIN WORKSPACE ==================== -->
+  <main class="studio-container studio-workspace">
+
+    <!-- Global Alert Bar -->
+    <div id="studioAlert" class="alert alert-danger hidden" role="alert">
+      <span class="alert-icon">⚠️</span>
+      <div id="studioAlertText" class="alert-message"></div>
+    </div>
+
+    <div class="studio-grid">
+
+      <!-- ==================== COLUMN 1: PHOTO CROP & ADJUSTMENT ==================== -->
+      <section class="card studio-card editor-card">
+        <div class="card-header">
+          <div>
+            <h2>1. Crop & Biometric Alignment</h2>
+            <p class="text-sm text-muted">फोटो अपलोड करें और चेहरे को गाइडलाइन के अनुसार सेट करें।</p>
+          </div>
+          <button type="button" id="btnUploadTrigger" class="btn btn-primary btn-sm">
+            📁 Select Photo
+          </button>
+          <input type="file" id="photoFileInput" class="hidden" accept="image/jpeg, image/jpg, image/png">
+        </div>
+
+        <div class="card-body editor-body">
+          <!-- Viewport with Interactive Crop Box & Biometric Guidelines -->
+          <div id="cropViewport" class="crop-viewport" tabindex="0">
+            <div id="editorEmptyState" class="empty-state">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="8" r="5"></circle>
+                <path d="M20 21a8 8 0 1 0-16 0"></path>
+              </svg>
+              <h3>No Photo Selected</h3>
+              <p class="text-xs text-muted" style="margin-top: 0.25rem;">
+                Click "Select Photo" or drag an image here to begin cropping.
+              </p>
+            </div>
+
+            <!-- Canvas for interactive image positioning -->
+            <canvas id="cropCanvas" class="crop-canvas hidden"></canvas>
+
+            <!-- Biometric Overlay Frame (Chin & Eye reference lines) -->
+            <div id="biometricGuide" class="biometric-guide hidden">
+              <div class="guide-line eye-line" title="Eye Level Guide"><span>Eye Line</span></div>
+              <div class="guide-oval" title="Head Silhouette"></div>
+              <div class="guide-line chin-line" title="Chin Level Guide"><span>Chin Line</span></div>
+              <div class="guide-badge" id="presetDimensionTag">35 x 45 mm</div>
+            </div>
+          </div>
+
+          <!-- Manipulation Controls Toolbar -->
+          <div class="editor-toolbar">
+            <div class="toolbar-group">
+              <label class="toolbar-label" for="zoomSlider">Zoom:</label>
+              <input type="range" id="zoomSlider" min="0.5" max="3.0" step="0.05" value="1.0" class="range-slider" disabled>
+              <span id="zoomValDisplay" class="text-xs text-mono">1.0x</span>
+            </div>
+
+            <div class="toolbar-group">
+              <button type="button" id="btnRotate90" class="btn btn-outline btn-sm" disabled title="Rotate 90 degrees">
+                🔄 Rotate 90°
+              </button>
+              <button type="button" id="btnFlipH" class="btn btn-outline btn-sm" disabled title="Flip Horizontally">
+                ⇄ Mirror
+              </button>
+              <button type="button" id="btnResetCrop" class="btn btn-outline btn-sm" disabled title="Reset crop position">
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <!-- Color Correction Sliders (Brightness & Contrast for shop operators) -->
+          <div class="adjustments-panel">
+            <div class="adj-row">
+              <label class="text-xs text-muted" for="brightnessSlider">Brightness:</label>
+              <input type="range" id="brightnessSlider" min="-50" max="50" step="1" value="0" class="range-slider" disabled>
+              <span id="brightnessVal" class="text-xs text-mono">0</span>
+            </div>
+            <div class="adj-row">
+              <label class="text-xs text-muted" for="contrastSlider">Contrast:</label>
+              <input type="range" id="contrastSlider" min="-50" max="50" step="1" value="0" class="range-slider" disabled>
+              <span id="contrastVal" class="text-xs text-mono">0</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== COLUMN 2: PRESETS & SHEET LAYOUT CONFIG ==================== -->
+      <section class="card studio-card settings-card">
+        <div class="card-header">
+          <div>
+            <h2>2. Photo Size & Sheet Settings</h2>
+            <p class="text-sm text-muted">कागज़ का साइज़ और फोटो की संख्या चुनें।</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <form id="passportConfigForm" onsubmit="event.preventDefault();">
+
+            <!-- Preset Size Selection -->
+            <div class="form-group">
+              <label class="form-label" for="presetSelect">Photo Size Preset (आकार)</label>
+              <select id="presetSelect" class="form-select">
+                <option value="in-std" selected>Indian Standard (35 x 45 mm) — Passport, PAN, Visa</option>
+                <option value="us-visa">US Visa / Foreign Passport (2 x 2 inch / 51 x 51 mm)</option>
+                <option value="stamp">Stamp Size (25 x 30 mm) — School / DL</option>
+                <option value="custom">Custom Dimensions (mm)</option>
+              </select>
+            </div>
+
+            <!-- Custom Millimeter Dimension Inputs (shown when Custom selected) -->
+            <div id="customDimBox" class="custom-dim-box hidden">
+              <div class="dim-field">
+                <label class="text-xs text-muted" for="customWidthMm">Width (mm):</label>
+                <input type="number" id="customWidthMm" class="form-input text-mono" value="35" min="15" max="150">
+              </div>
+              <div class="dim-field">
+                <label class="text-xs text-muted" for="customHeightMm">Height (mm):</label>
+                <input type="number" id="customHeightMm" class="form-input text-mono" value="45" min="15" max="150">
+              </div>
+            </div>
+
+            <!-- Paper Format Selection -->
+            <div class="form-group">
+              <label class="form-label">Paper Sheet Format (कागज़)</label>
+              <div class="option-grid">
+                <label class="option-tile">
+                  <input type="radio" name="sheetFormat" value="PHOTO_4X6" checked>
+                  <div class="tile-content">
+                    <strong class="tile-title">4 x 6 Inch Sheet</strong>
+                    <span class="tile-sub text-muted">Glossy Photo Paper (Postcard)</span>
+                  </div>
+                </label>
+                <label class="option-tile">
+                  <input type="radio" name="sheetFormat" value="A4">
+                  <div class="tile-content">
+                    <strong class="tile-title">A4 Full Sheet</strong>
+                    <span class="tile-sub text-muted">Standard 210 x 297 mm Page</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Number of Photos / Grid Layout -->
+            <div class="form-group">
+              <label class="form-label" for="photoCountSelect">Number of Photos on Sheet (संख्या)</label>
+              <select id="photoCountSelect" class="form-select">
+                <option value="4">4 Photos</option>
+                <option value="6">6 Photos</option>
+                <option value="8" selected>8 Photos (Standard 4x6)</option>
+                <option value="12">12 Photos</option>
+                <option value="16">16 Photos</option>
+                <option value="32">32 Photos (Max A4 Grid)</option>
+              </select>
+            </div>
+
+            <!-- Border & Margin Options -->
+            <div class="options-toggle-list">
+              <label class="checkbox-label">
+                <input type="checkbox" id="chkDrawBorder" checked>
+                <span>Black Cut Lines (कटिंग बॉर्डर रेखाएं)</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="chkAutoCenter" checked>
+                <span>Auto Center Sheet Layout (मध्य में संरेखित)</span>
+              </label>
+            </div>
+
+            <!-- Authoritative Photo Billing Snapshot -->
+            <div class="photo-pricing-card">
+              <div class="pricing-header">
+                <span class="text-xs text-bold uppercase">Photo Sheet Rate (मूल्य)</span>
+                <span class="badge badge-success">Passport Studio Rate</span>
+              </div>
+              <div class="pricing-body">
+                <div class="price-row">
+                  <span class="text-sm text-muted">Sheet Paper:</span>
+                  <strong id="pricingPaperName" class="text-sm">4 x 6 Inch Photo</strong>
+                </div>
+                <div class="price-row">
+                  <span class="text-sm text-muted">Photos Generated:</span>
+                  <strong id="pricingPhotoCount" class="text-sm text-mono">8 Photos</strong>
+                </div>
+                <div class="price-divider"></div>
+                <div class="price-row total-row">
+                  <span>Billing Amount:</span>
+                  <span id="pricingTotalAmount" class="price-val">₹30.00</span>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </section>
+
+      <!-- ==================== COLUMN 3: REAL FULL-SHEET PREVIEW & ACTIONS ==================== -->
+      <section class="card studio-card sheet-card">
+        <div class="card-header">
+          <div>
+            <h2>3. Sheet Print Preview</h2>
+            <p class="text-sm text-muted">प्रिंट होने वाली पूरी शीट का वास्तविक दृश्य।</p>
+          </div>
+          <button type="button" id="btnRefreshSheet" class="btn btn-outline btn-sm">
+            🔄 Refresh
+          </button>
+        </div>
+
+        <div class="card-body sheet-body">
+          <div class="sheet-viewport">
+            <canvas id="sheetCanvas" class="sheet-canvas"></canvas>
+            <div id="sheetEmptyNotice" class="sheet-empty-overlay">
+              <p class="text-xs text-muted">Select and crop a photo to view sheet arrangement.</p>
+            </div>
+          </div>
+
+          <div class="sheet-meta-bar">
+            <span id="sheetDimensionsText" class="text-xs text-mono text-muted">Size: 101.6 x 152.4 mm (300 DPI)</span>
+            <span id="gridDimensionsText" class="text-xs text-mono text-muted">Grid: 2 cols x 4 rows</span>
+          </div>
+
+          <!-- Primary Studio Actions -->
+          <div class="studio-action-stack">
+            <button type="button" id="btnDownloadSheetPdf" class="btn btn-secondary btn-full" disabled>
+              📥 Download Print-Ready PDF
+            </button>
+            <button type="button" id="btnSendToPrintQueue" class="btn btn-primary btn-lg btn-full" disabled>
+              🖨️ Send to Windows Print Queue
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==================== STUDIO FOOTER ==================== -->
+  <footer class="studio-footer">
+    <div class="studio-container text-center">
+      <p class="text-xs text-muted">
+        AURA Print Pro &bull; Passport Photo Studio Module &bull; Owned & Engineered by <strong>Sabir Ansari</strong>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Modular Studio Logic -->
+  <script type="module" src="./passport/passport-studio.js"></script>
+</body>
+</html>
